@@ -64,6 +64,12 @@ func up(app core.App) error {
 		c.DeleteRule = types.Pointer(regleOwner)
 		c.Fields.Add(relation("owner", users, true, true))
 		c.Fields.Add(champs...)
+		// Un enregistrement ne change jamais de parent (mois ou modèle) : ses créneaux et son suivi y sont liés.
+		for _, parent := range []string{"plan", "modele"} {
+			if c.Fields.GetByName(parent) != nil {
+				c.UpdateRule = types.Pointer(*c.UpdateRule + " && @request.body." + parent + ":changed = false")
+			}
+		}
 		c.Fields.Add(&core.AutodateField{Name: "created", OnCreate: true})
 		c.Fields.Add(&core.AutodateField{Name: "updated", OnCreate: true, OnUpdate: true})
 		return c, app.Save(c)

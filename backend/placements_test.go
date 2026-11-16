@@ -106,3 +106,29 @@ func TestPlacementsDuPlan(t *testing.T) {
 		t.Errorf("plan_tache d'un autre plan = %d, attendu 422", code)
 	}
 }
+
+// Un enregistrement ne change pas de parent : sinon une tâche de plan pourrait quitter son mois
+// en laissant derrière elle des créneaux et un suivi incohérents.
+func TestParentImmuable(t *testing.T) {
+	a := newAPI(t)
+	A := a.signup("a@semio.test")
+	ids := a.graphe(A)
+	autrePlan := a.create(A, "plans_mois", map[string]any{"annee": 2028, "mois": 3})
+	autreModele := a.create(A, "modeles", map[string]any{"nom": "Vacances"})
+
+	for collection, champs := range map[string]map[string]any{
+		"plan_taches":       {"plan": autrePlan},
+		"plan_placements":   {"plan": autrePlan},
+		"suivis":            {"plan": autrePlan},
+		"modele_taches":     {"modele": autreModele},
+		"modele_placements": {"modele": autreModele},
+	} {
+		if code, out := a.patch(A, collection, ids[collection], champs); code != 404 {
+			t.Errorf("%s change de parent = %d, attendu 404 : %s", collection, code, out)
+		}
+	}
+	// Les autres champs restent modifiables.
+	if code, out := a.patch(A, "plan_taches", ids["plan_taches"], map[string]any{"nom_snapshot": "École (matin)"}); code != 200 {
+		t.Errorf("renommer une tâche du plan = %d %s", code, out)
+	}
+}
