@@ -46,6 +46,19 @@
 }
 
 @layer components {
+  /* Grille horaire : une ligne = 30 minutes. Trait fort à l'heure, trait léger à la demie. */
+  .semaine {
+    --row-h: 1.5rem;
+  }
+
+  .semaine-jour {
+    background-image:
+      linear-gradient(to bottom, var(--color-line) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in srgb, var(--color-line) 45%, transparent) 1px, transparent 1px);
+    background-size: 100% calc(var(--row-h) * 2), 100% var(--row-h);
+    border-bottom: 1px solid var(--color-line);
+  }
+
   /* Cibles tactiles ≥ 44 px (min-h-11). */
   .btn {
     @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md border border-line bg-card px-4 text-sm font-medium text-ink transition-colors hover:border-ink-soft disabled:cursor-not-allowed disabled:opacity-50;

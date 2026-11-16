@@ -21,3 +21,8 @@
 - 2026-11-16 — Icône de tâche = emoji saisi, pas de dépendance Lucide — le cahier des charges autorise l'un ou l'autre.
 - 2026-11-16 — Pas d'écran « mot de passe oublié » en V1 — dépend d'un SMTP non fourni; un superuser peut réinitialiser depuis `/_/`. SMTP reste configurable par variables d'environnement.
 - 2026-11-16 — Suppression d'une tâche : archivage dans l'interface; suppression définitive seulement depuis les archives, refusée par le serveur tant qu'un modèle l'utilise; les plans gardent leur instantané.
+- 2026-11-16 — Chevauchement interdit pour tous les blocs d'un même jour (créneaux et objectifs placés) — une seule règle `[début, fin)` côté écran et serveur.
+- 2026-11-16 — Une tâche doit être membre du modèle avant d'y être placée; l'écran l'ajoute automatiquement au dépôt, retirer un membre retire ses créneaux de ce modèle.
+- 2026-11-16 — Un seul mécanisme optimiste `lib/sync.ts` (file par clé, délai, rollback) pour les déplacements (300 ms) et les coches (immédiat).
+- 2026-11-16 — Étirement par la poignée basse uniquement; l'heure de début se change en déplaçant le bloc ou par son formulaire.
+- 2026-11-16 — `.gitattributes` force LF — les fichiers `deploy/` partent sur Linux.

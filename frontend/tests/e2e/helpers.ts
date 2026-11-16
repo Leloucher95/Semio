@@ -53,3 +53,10 @@ export async function creerTache(page: Page, t: TacheE2E) {
   await dialog.getByRole('button', { name: 'Enregistrer' }).click()
   await expect(page.getByTestId('tache').filter({ hasText: t.nom })).toBeVisible()
 }
+
+export async function creerModele(page: Page, nom: string) {
+  await page.goto('/semaine')
+  page.once('dialog', (d) => d.accept(nom))
+  await page.getByRole('button', { name: 'Créer ma semaine type' }).click()
+  await expect(page.getByLabel('Semaine type affichée')).toContainText(nom)
+}

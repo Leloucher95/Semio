@@ -6,6 +6,7 @@ import { useAuth } from './stores/auth'
 const auth = useAuth()
 
 const liens = [
+  { to: '/semaine', label: 'Semaine type' },
   { to: '/bibliotheque', label: 'Bibliothèque' },
   { to: '/profil', label: 'Profil' },
 ]

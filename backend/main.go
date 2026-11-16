@@ -10,6 +10,7 @@ import (
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
 	"github.com/pocketbase/pocketbase/tools/osutils"
 
+	"semio/internal/planning"
 	"semio/internal/security"
 	_ "semio/migrations"
 	"semio/web"
@@ -33,6 +34,7 @@ func main() {
 // setup branche tout ce qui est propre à Semio ; partagé avec les tests.
 func setup(app core.App) {
 	security.Bind(app)
+	planning.Bind(app)
 
 	app.OnServe().BindFunc(func(e *core.ServeEvent) error {
 		// Front embarqué avec repli SPA sur index.html (routes profondes).

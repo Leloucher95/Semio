@@ -12,10 +12,10 @@ const Pas = 30
 // ValidSlot vérifie un créneau [debut, fin) en minutes depuis minuit.
 func ValidSlot(debut, fin int) error {
 	if debut < 0 || fin > 1440 || debut >= fin {
-		return errors.New("le créneau doit commencer avant de finir, entre 00:00 et 24:00")
+		return errors.New("Le créneau doit commencer avant de finir, entre 00:00 et 24:00.")
 	}
 	if debut%Pas != 0 || fin%Pas != 0 {
-		return errors.New("les horaires doivent tomber sur un pas de 30 minutes")
+		return errors.New("Les horaires doivent tomber sur un pas de 30 minutes.")
 	}
 	return nil
 }
@@ -30,10 +30,10 @@ func ValidDateInMonth(date string, annee, mois int) error {
 	// time.Parse refuse les dates impossibles (30 février) et les formats approchants.
 	t, err := time.Parse("2006-01-02", date)
 	if err != nil {
-		return errors.New("date invalide (format attendu AAAA-MM-JJ)")
+		return errors.New("Date invalide (format attendu AAAA-MM-JJ).")
 	}
 	if t.Year() != annee || int(t.Month()) != mois {
-		return errors.New("la date n'appartient pas au mois du plan")
+		return errors.New("Cette date n'appartient pas au mois du plan.")
 	}
 	return nil
 }

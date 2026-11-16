@@ -6,6 +6,7 @@ export const router = createRouter({
   routes: [
     { path: '/', redirect: '/bibliotheque' },
     { path: '/connexion', name: 'connexion', component: () => import('./views/LoginView.vue'), meta: { public: true } },
+    { path: '/semaine', name: 'semaine', component: () => import('./views/ModelView.vue') },
     { path: '/bibliotheque', name: 'bibliotheque', component: () => import('./views/LibraryView.vue') },
     { path: '/profil', name: 'profil', component: () => import('./views/ProfileView.vue') },
     { path: '/:inconnu(.*)*', redirect: '/' },

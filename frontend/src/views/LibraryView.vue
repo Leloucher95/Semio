@@ -103,7 +103,7 @@ const voirArchivees = ref(false)
 </script>
 
 <template>
-  <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_22rem]">
+  <div class="grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[minmax(0,1fr)_22rem]">
     <section>
       <div class="flex flex-wrap items-end justify-between gap-3">
         <div>
