@@ -6,7 +6,7 @@ Application web en français : tâches réutilisables, semaine type, plan mensue
 ## Contraintes immuables
 - Vue 3 + Vite + TypeScript strict + Pinia + Tailwind CSS 4 + Vue Router; français uniquement V1.
 - Go + PocketBase **librairie Go**, migrations Go versionnées, SQLite; pas de hooks JS, d'ORM ou de backend Node.
-- Déploiement défini par le brief : binaire unique `embed.FS` + systemd + reverse proxy. **Ne pas introduire Docker en production** sans instruction contraire.
+- Déploiement (décision du propriétaire, 2026-11-16) : **Dokploy + Docker Compose**, un seul service et un seul réplica — binaire Go statique `embed.FS` dans une image minimale non-root, volume nommé sur `/pb_data`, aucun port publié, HTTPS par les domaines natifs de Dokploy (Traefik). Fichiers : `compose.yaml`, `Dockerfile`, `deploy/README.md`. systemd + reverse proxy reste une alternative documentée (`deploy/systemd.md`). Pas de PostgreSQL, pas de second service, pas de labels Traefik manuels sans nécessité démontrée.
 - Dates de suivi = `YYYY-MM-DD` en timezone de l'utilisateur, jamais UTC; défaut `Africa/Porto-Novo`. Créneaux = minutes depuis minuit, jour ISO 1–7, pas de 30 minutes.
 - Modèle et plan mensuel sont distincts. Snapshot des tâches/objectifs/placements dans le plan. Jamais de suppression physique des tâches référencées : archivage.
 - Toutes les collections métier sont tenant-scopées par `owner`, API rules explicites **ET** validation serveur des relations. Ne jamais utiliser une simple règle owner comme protection suffisante.

@@ -33,7 +33,8 @@ Ouvrir http://localhost:5173. L'admin PocketBase est sur http://127.0.0.1:8090/_
 ```
 backend/     main.go, migrations/ (schéma), internal/ (domain, security, planning), web/ (front embarqué)
 frontend/    src/ (views, components, stores, composables, lib, print), tests/e2e (Playwright)
-deploy/      service systemd, exemple Caddy, procédure de déploiement et de restauration
+deploy/      procédure Dokploy (README.md), essai local de la pile, alternative systemd + Caddy
+compose.yaml, Dockerfile   déploiement Docker Compose : un service, un volume, aucun port publié
 docs/        cahier des charges d'origine, architecture, critères d'acceptation, matrice de tests
 ```
 

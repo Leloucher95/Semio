@@ -80,6 +80,7 @@ Tests avec 2 utilisateurs + invité sur chaque opération, y compris tentative d
 ## 7. Embedding et sauvegardes
 
 - Vite build → `backend/web/dist`; seul le contenu sous `backend/web` est embarqué, pas un chemin parent interdit par `embed.FS`. En dev PocketBase sert `/api`, Vite sert l'interface et proxy.
-- Déployer un seul binaire Go avec systemd user dédié, sur `127.0.0.1:8090`, reverse proxy HTTP/TLS; ne pas modifier d'autres vhosts.
+- Déploiement de référence (depuis le 2026-11-16) : Dokploy + Docker Compose, un service, un réplica. Image en trois étapes (Node → Go → Alpine), binaire statique sous utilisateur non-root, écoute `0.0.0.0:8090` **dans le conteneur** sans port publié sur l'hôte, volume nommé monté sur `/pb_data`, healthcheck `/api/health`, routage HTTPS par Traefik via les domaines de Dokploy. Ne pas toucher aux autres applications du VPS.
+- Alternative conservée : binaire Go avec systemd user dédié sur `127.0.0.1:8090` derrière un reverse proxy (`deploy/systemd.md`).
 - Sauvegarde R2 : paramètres `backups.s3` (différents du stockage utilisateur `s3`) et planification quotidienne/rétention 14; endpoint R2 et path-style paramétrables par env. Pour V1 aucun bucket files n'est utile. Ne pas activer le stockage local de backup par défaut en production.
 - Test de restauration sur **base jetable**; consigner les variables de configuration sans valeurs sensibles. Absence de R2 bloque validation de **production** mais pas les tests locaux du logiciel.

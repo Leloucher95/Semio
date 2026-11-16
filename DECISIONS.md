@@ -48,3 +48,7 @@
 - 2026-11-16 — V1.1 : la barre d'actions d'un bloc est un complément ; le clic ouvre toujours le formulaire et la sélection ne change qu'en fin de geste, pour ne jamais déplacer la grille pendant un glisser.
 - 2026-11-16 — V1.1 : pas de colonne « Semaine » dans le suivi mensuel ; le total « Jours » de la V1 est conservé.
 - 2026-11-16 — V1.1 : clic = sélection du bloc (barre d'actions) ; formulaire par double-clic, « Modifier… » ou Entrée/Espace. Remplace la décision « le clic ouvre toujours le formulaire ».
+- 2026-11-16 — Déploiement par Dokploy + Docker Compose (décision du propriétaire) : remplace la contrainte « systemd uniquement, pas de Docker en production ». systemd reste une alternative documentée.
+- 2026-11-16 — Image finale Alpine plutôt que `scratch`/distroless : le healthcheck et la sauvegarde à la demande ont besoin d'un `wget` et d'un shell ; coût ≈ 8 Mo, aucun code Go ajouté.
+- 2026-11-16 — Aucun label Traefik ni réseau externe dans `compose.yaml` : Dokploy les ajoute au déploiement pour le domaine déclaré dans son interface.
+- 2026-11-16 — `APP_URL` et `PB_ENCRYPTION_KEY` obligatoires dans `compose.yaml` (échec explicite) ; R2 facultatif pour démarrer mais requis avant toute ouverture au public.

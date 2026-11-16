@@ -1,4 +1,6 @@
-# Déployer Semio
+# Déployer Semio sans Docker (méthode alternative)
+
+> La méthode de référence est désormais **Dokploy + Docker Compose** : voir [README.md](README.md). Cette page reste valable pour un serveur sans Docker ; elle n'est plus la cible des évolutions.
 
 Un binaire Go unique (API PocketBase + front embarqué), un service systemd non-root en écoute sur `127.0.0.1:8090`, un reverse proxy HTTPS devant, des sauvegardes quotidiennes vers Cloudflare R2. Pas de Docker, pas de Node sur le serveur.
 
