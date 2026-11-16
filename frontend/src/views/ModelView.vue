@@ -1,15 +1,21 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { computed, onMounted, reactive, ref } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
 import PlacerDialog from '../components/PlacerDialog.vue'
 import WeekGrid, { type Bloc } from '../components/WeekGrid.vue'
+import { MOIS, moisLabel, parseYmd, todayIn } from '../lib/dates'
 import { messageErreur } from '../lib/pb'
 import { cibleLabel, COULEUR_DEFAUT } from '../lib/taches'
 import type { Creneau, Tache } from '../lib/types'
+import { useAuth } from '../stores/auth'
 import { useLibrary } from '../stores/library'
 import { useModeles } from '../stores/modeles'
+import { usePlan } from '../stores/plan'
 import { useToasts } from '../stores/toasts'
 
+const auth = useAuth()
+const plan = usePlan()
+const router = useRouter()
 const library = useLibrary()
 const modeles = useModeles()
 const toasts = useToasts()
@@ -85,6 +91,31 @@ async function placer(tache: string, creneaux: Creneau[]) {
   }
 }
 
+// Appliquer la semaine type à un mois : le serveur en fait une copie indépendante, ou refuse si le mois existe.
+const appliquerDialog = ref<HTMLDialogElement>()
+const cible = reactive({ annee: 0, mois: 0, envoi: false, erreur: '' })
+
+function ouvrirAppliquer() {
+  const { annee, mois } = parseYmd(todayIn(auth.timezone))
+  Object.assign(cible, { annee, mois, erreur: '' })
+  appliquerDialog.value?.showModal()
+}
+
+async function appliquer() {
+  cible.envoi = true
+  cible.erreur = ''
+  try {
+    await plan.appliquer(modeles.courantId, cible.annee, cible.mois)
+    appliquerDialog.value?.close()
+    toasts.ok(`Semaine type appliquée à ${moisLabel(cible.annee, cible.mois)}.`)
+    await router.push(`/planning/${cible.annee}/${cible.mois}`)
+  } catch (e) {
+    cible.erreur = messageErreur(e, 'La semaine type n’a pas pu être appliquée : rien n’a été créé.')
+  } finally {
+    cible.envoi = false
+  }
+}
+
 function ouvrirBloc(id: string) {
   const bloc = blocs.value.find((b) => b.id === id)
   if (bloc) placerDialog.value?.ouvrir({ bloc })
@@ -106,6 +137,7 @@ function ouvrirBloc(id: string) {
         <button type="button" class="btn btn-quiet" @click="renommer">Renommer</button>
         <button type="button" class="btn btn-quiet" @click="supprimer">Supprimer</button>
         <button type="button" class="btn" @click="nouveauModele">Nouvelle semaine type</button>
+        <button type="button" class="btn btn-primary" @click="ouvrirAppliquer">Appliquer à un mois</button>
       </div>
     </div>
 
@@ -164,6 +196,33 @@ function ouvrirBloc(id: string) {
         />
       </section>
     </div>
+
+    <dialog ref="appliquerDialog" class="sheet w-[min(26rem,calc(100vw-2rem))] p-0" aria-labelledby="appliquer-titre">
+      <form class="space-y-4 p-5" @submit.prevent="appliquer">
+        <h2 id="appliquer-titre" class="text-2xl">Appliquer à un mois</h2>
+        <p class="text-sm text-ink-soft">
+          Le mois reçoit sa propre copie de « {{ modeles.courant?.nom }} » : tâches, objectifs et créneaux.
+          Modifier la semaine type ensuite ne changera pas ce mois.
+        </p>
+        <div class="grid grid-cols-[1fr_7rem] gap-3">
+          <div>
+            <label class="label" for="appliquer-mois">Mois</label>
+            <select id="appliquer-mois" v-model.number="cible.mois" class="field capitalize">
+              <option v-for="(nom, i) in MOIS" :key="nom" :value="i + 1">{{ nom }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="label" for="appliquer-annee">Année</label>
+            <input id="appliquer-annee" v-model.number="cible.annee" class="field tabular-nums" type="number" min="2000" max="2100" required />
+          </div>
+        </div>
+        <p v-if="cible.erreur" class="text-sm text-danger" role="alert">{{ cible.erreur }}</p>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" class="btn" @click="appliquerDialog?.close()">Annuler</button>
+          <button type="submit" class="btn btn-primary" :disabled="cible.envoi">Appliquer</button>
+        </div>
+      </form>
+    </dialog>
 
     <PlacerDialog
       ref="placerDialog" :taches="library.actives"

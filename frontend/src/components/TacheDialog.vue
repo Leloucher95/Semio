@@ -13,6 +13,7 @@ const toasts = useToasts()
 const dialog = ref<HTMLDialogElement>()
 const id = ref<string>()
 const envoi = ref(false)
+const erreur = ref('')
 const vide = (): TacheSaisie => ({
   nom: '', type: 'creneau', rubrique: '', couleur: COULEUR_DEFAUT, icone: '',
   duree_defaut_min: 60, cible_jours_semaine: 0, cible_minutes_par_jour: 0,
@@ -21,6 +22,7 @@ const form = reactive<TacheSaisie>(vide())
 
 function ouvrir(tache?: Tache) {
   id.value = tache?.id
+  erreur.value = ''
   const { nom, type, rubrique, couleur, icone, duree_defaut_min, cible_jours_semaine, cible_minutes_par_jour } = tache ?? vide()
   Object.assign(form, {
     nom, type, rubrique, icone, duree_defaut_min, cible_jours_semaine, cible_minutes_par_jour,
@@ -37,7 +39,8 @@ async function enregistrer() {
     dialog.value?.close()
     toasts.ok(id.value ? 'Tâche modifiée.' : 'Tâche ajoutée.')
   } catch (e) {
-    toasts.erreur(messageErreur(e, 'La tâche n’a pas pu être enregistrée.'))
+    // Dans la boîte de dialogue : un toast resterait derrière le voile.
+    erreur.value = messageErreur(e, 'La tâche n’a pas pu être enregistrée. Vérifiez les valeurs saisies.')
   } finally {
     envoi.value = false
   }
@@ -99,6 +102,7 @@ async function enregistrer() {
 
       <ColorPicker v-model="form.couleur" nom="tache-couleur" />
 
+      <p v-if="erreur" class="text-sm text-danger" role="alert">{{ erreur }}</p>
       <div class="flex justify-end gap-2 pt-2">
         <button type="button" class="btn" @click="dialog?.close()">Annuler</button>
         <button type="submit" class="btn btn-primary" :disabled="envoi">Enregistrer</button>

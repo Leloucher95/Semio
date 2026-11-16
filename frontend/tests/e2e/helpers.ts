@@ -42,6 +42,7 @@ interface TacheE2E {
 }
 
 export async function creerTache(page: Page, t: TacheE2E) {
+  if (!page.url().endsWith('/bibliotheque')) await page.goto('/bibliotheque')
   await page.getByRole('button', { name: 'Nouvelle tâche' }).click()
   const dialog = page.getByRole('dialog')
   await dialog.getByLabel('Nom').fill(t.nom)

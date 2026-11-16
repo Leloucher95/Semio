@@ -26,3 +26,7 @@
 - 2026-11-16 — Un seul mécanisme optimiste `lib/sync.ts` (file par clé, délai, rollback) pour les déplacements (300 ms) et les coches (immédiat).
 - 2026-11-16 — Étirement par la poignée basse uniquement; l'heure de début se change en déplaçant le bloc ou par son formulaire.
 - 2026-11-16 — `.gitattributes` force LF — les fichiers `deploy/` partent sur Linux.
+- 2026-11-16 — Objectif en minutes : `fait` est calculé (`minutes >= cible`) par le serveur et par l'écran avec la même règle; cocher inscrit la cible, décocher remet à zéro.
+- 2026-11-16 — Progression hebdomadaire calculée dans le mois affiché uniquement — le suivi appartient à un plan mensuel; à revoir si les semaines à cheval gênent.
+- 2026-11-16 — Supprimer un mois est possible (confirmation) et efface son suivi — seul moyen de réappliquer un autre modèle; jamais fait implicitement.
+- 2026-11-16 — Mois existant ⇒ 409 avec le nom du mois, aucune écriture — vérifié par comptage des enregistrements avant/après.

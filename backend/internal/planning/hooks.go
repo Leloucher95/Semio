@@ -17,6 +17,8 @@ func refus(message string) error {
 // Bind branche les validations sur OnRecordValidate : elles valent pour l'API
 // comme pour les écritures serveur (appliquer un modèle, dupliquer un mois).
 func Bind(app core.App) {
+	bindRoutes(app)
+
 	app.OnRecordValidate("modele_placements").BindFunc(func(e *core.RecordEvent) error {
 		r := e.Record
 		if err := checkCreneau(e.App, r, "modele"); err != nil {
@@ -33,8 +35,28 @@ func Bind(app core.App) {
 		if err := checkCreneau(e.App, e.Record, "plan"); err != nil {
 			return err
 		}
-		if err := checkMemePlan(e.App, e.Record); err != nil {
+		if _, err := checkMemePlan(e.App, e.Record); err != nil {
 			return err
+		}
+		return e.Next()
+	})
+
+	app.OnRecordValidate("suivis").BindFunc(func(e *core.RecordEvent) error {
+		r := e.Record
+		planTache, err := checkMemePlan(e.App, r)
+		if err != nil {
+			return err
+		}
+		plan, err := e.App.FindRecordById("plans_mois", r.GetString("plan"))
+		if err != nil {
+			return refus("Mois introuvable.")
+		}
+		if err := domain.ValidDateInMonth(r.GetString("date"), plan.GetInt("annee"), plan.GetInt("mois")); err != nil {
+			return refus(err.Error())
+		}
+		// Objectif en minutes : la coche découle de la durée saisie, jamais deux valeurs contradictoires.
+		if cible := planTache.GetInt("cible_minutes_par_jour_snapshot"); cible > 0 {
+			r.Set("fait", r.GetInt("minutes") >= cible)
 		}
 		return e.Next()
 	})
@@ -78,11 +100,11 @@ func checkCreneau(app core.App, r *core.Record, parent string) error {
 	return nil
 }
 
-// checkMemePlan : `plan_tache` doit appartenir au `plan` de l'enregistrement.
-func checkMemePlan(app core.App, r *core.Record) error {
+// checkMemePlan : `plan_tache` doit appartenir au `plan` de l'enregistrement ; renvoie la tâche du plan.
+func checkMemePlan(app core.App, r *core.Record) (*core.Record, error) {
 	planTache, err := app.FindRecordById("plan_taches", r.GetString("plan_tache"))
 	if err != nil || planTache.GetString("plan") != r.GetString("plan") {
-		return refus("Cette tâche n'appartient pas à ce mois.")
+		return nil, refus("Cette tâche n'appartient pas à ce mois.")
 	}
-	return nil
+	return planTache, nil
 }

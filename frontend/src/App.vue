@@ -1,15 +1,20 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView, useRoute } from 'vue-router'
 import AppToasts from './components/AppToasts.vue'
 import { useAuth } from './stores/auth'
 
 const auth = useAuth()
+const route = useRoute()
 
+// `sous` : préfixes d'URL qui appartiennent au même onglet (le suivi d'un autre jour reste « Aujourd'hui »).
 const liens = [
-  { to: '/semaine', label: 'Semaine type' },
-  { to: '/bibliotheque', label: 'Bibliothèque' },
-  { to: '/profil', label: 'Profil' },
+  { to: '/aujourdhui', label: 'Aujourd’hui', sous: ['/aujourdhui', '/jour/'] },
+  { to: '/planning', label: 'Mois', sous: ['/planning'] },
+  { to: '/semaine', label: 'Semaine type', sous: ['/semaine'] },
+  { to: '/bibliotheque', label: 'Bibliothèque', sous: ['/bibliotheque'] },
+  { to: '/profil', label: 'Profil', sous: ['/profil'] },
 ]
+const actif = (lien: (typeof liens)[number]) => lien.sous.some((prefixe) => route.path.startsWith(prefixe))
 </script>
 
 <template>
@@ -21,8 +26,9 @@ const liens = [
         <nav aria-label="Navigation principale" class="hidden gap-1 md:flex">
           <RouterLink
             v-for="lien in liens" :key="lien.to" :to="lien.to"
-            class="rounded-md px-3 py-2 text-sm font-medium text-ink-soft hover:text-ink"
-            active-class="!text-ink underline decoration-accent decoration-2 underline-offset-8"
+            class="rounded-md px-3 py-2 text-sm font-medium hover:text-ink"
+            :class="actif(lien) ? 'text-ink underline decoration-accent decoration-2 underline-offset-8' : 'text-ink-soft'"
+            :aria-current="actif(lien) ? 'page' : undefined"
           >
             {{ lien.label }}
           </RouterLink>
@@ -40,8 +46,9 @@ const liens = [
     >
       <RouterLink
         v-for="lien in liens" :key="lien.to" :to="lien.to"
-        class="flex min-h-14 flex-1 items-center justify-center px-1 text-center text-xs font-medium text-ink-soft"
-        active-class="!text-ink shadow-[inset_0_2px_0_var(--color-accent)]"
+        class="flex min-h-14 flex-1 items-center justify-center px-1 text-center text-xs font-medium"
+        :class="actif(lien) ? 'text-ink shadow-[inset_0_2px_0_var(--color-accent)]' : 'text-ink-soft'"
+        :aria-current="actif(lien) ? 'page' : undefined"
       >
         {{ lien.label }}
       </RouterLink>

@@ -56,6 +56,9 @@ const fr = (options: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat('fr-
 export const moisLabel = (annee: number, mois: number) =>
   fr({ month: 'long', year: 'numeric' }).format(new Date(Date.UTC(annee, mois - 1, 1)))
 
+/** Noms des mois, janvier en premier. */
+export const MOIS = Array.from({ length: 12 }, (_, i) => fr({ month: 'long' }).format(new Date(Date.UTC(2024, i, 1))))
+
 /** « lundi 16 novembre 2026 » */
 export function dateLabel(date: string) {
   const { annee, mois, jour } = parseYmd(date)

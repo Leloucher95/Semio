@@ -110,8 +110,12 @@ defineExpose({ deposerTache })
           @keydown.enter.prevent="editable && emit('ouvrir', b.id)"
           @keydown.space.prevent="editable && emit('ouvrir', b.id)"
         >
-          <p class="truncate font-semibold"><span v-if="b.icone" aria-hidden="true">{{ b.icone }} </span>{{ b.titre }}</p>
-          <p class="truncate text-ink-soft tabular-nums">{{ horaire(b) }}</p>
+          <!-- Bloc d'une demi-heure : nom et horaire sur une seule ligne, sinon l'horaire serait coupé. -->
+          <p class="truncate" :class="{ 'pr-5': editable }">
+            <span class="font-semibold"><span v-if="b.icone" aria-hidden="true">{{ b.icone }} </span>{{ b.titre }}</span>
+            <span v-if="b.fin_min - b.debut_min <= PAS" class="text-ink-soft tabular-nums"> {{ horaire(b) }}</span>
+          </p>
+          <p v-if="b.fin_min - b.debut_min > PAS" class="truncate text-ink-soft tabular-nums">{{ horaire(b) }}</p>
           <template v-if="editable">
             <!-- Poignées : seules zones à `touch-action: none`, pour ne pas bloquer le défilement tactile. -->
             <span
