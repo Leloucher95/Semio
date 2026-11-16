@@ -1,0 +1,17 @@
+# Journal de décisions — Semio
+
+- 2026-11-16 — Nom de travail `Semio` — distinctif et évocateur de la semaine; marque/domaine non validés.
+- 2026-11-16 — `systemd` et binaire Go conservés — contrainte explicite du cahier des charges source; pas de Docker en production sans demande contraire.
+- 2026-11-16 — Ajout `modele_taches` et `plan_taches` — objectifs non placés et snapshots historiques fiables.
+- 2026-11-16 — Double cible `cible_jours_semaine` + `cible_minutes_par_jour` — représente « 2 jours ET 2 heures » sans nouvelle fonctionnalité.
+- 2026-11-16 — `suivis` lié à `plan_tache` — suivi indépendant des placements et des évolutions de la bibliothèque.
+- 2026-11-16 — API transactions pour appliquer/dupliquer — éviter demi-copies et écrasements.
+- 2026-11-16 — Playwright ajouté à Vitest/Go — couvrir les gestes et les impressions, en conservant tests ciblés rapides.
+- 2026-11-16 — R2 `backups.s3` seulement en V1 — aucun fichier utilisateur à stocker.
+- 2026-11-16 — Impression 1 page sur référence de 12 tâches, pagination au-delà — données jamais coupées ni masquées.
+- 2026-11-16 — Nom définitif `Semio` (remplace `Semaquo` partout, routes `/api/semio/*`) — demande du propriétaire; choix techniques inchangés.
+- 2026-11-16 — PocketBase épinglé `v0.40.6`, Go 1.27 — dernière version stable; API vérifiée dans les sources du module, pas de mémoire.
+- 2026-11-16 — Vite écrit directement dans `backend/web/dist` (pas de copie depuis `frontend/dist`) — même résultat, une étape et un script en moins, portable Windows/Linux.
+- 2026-11-16 — Package d'embed dans `backend/web` (pas de `internal/web`) — `go:embed` doit être à côté de `dist`; le repli SPA est `apis.Static` de PocketBase, rien à écrire.
+- 2026-11-16 — Pas de Vue Test Utils/jsdom — la logique testée vit dans `lib/` et les stores Pinia; les composants sont couverts par Playwright. Deux dépendances (et leurs alertes npm audit) en moins.
+- 2026-11-16 — E2E Playwright sur le binaire final — teste l'artefact réellement déployé (embed + repli SPA) sans serveur de dev.

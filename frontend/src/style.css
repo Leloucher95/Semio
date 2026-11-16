@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+/* Agenda papier : crème, encre vert-noir, une seule couleur d'accent. */
+@theme {
+  --color-paper: #f6f1e7;
+  --color-paper-deep: #ece4d3;
+  --color-card: #fffdf8;
+  --color-ink: #22302b;
+  --color-ink-soft: #5d6862;
+  --color-line: #d8ceb9;
+  --color-accent: #b4532a;
+  --color-ok: #3d6b4f;
+  --color-danger: #a23a2e;
+  --font-serif: "Fraunces Variable", Georgia, "Times New Roman", serif;
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
