@@ -18,7 +18,7 @@ const actif = (lien: (typeof liens)[number]) => lien.sous.some((prefixe) => rout
 </script>
 
 <template>
-  <div class="flex min-h-dvh flex-col">
+  <div class="flex min-h-dvh flex-col print:block print:min-h-0">
     <header v-if="auth.connecte" class="border-b border-line print:hidden">
       <div class="mx-auto flex max-w-[1400px] items-center gap-6 px-4 py-3 sm:px-6">
         <RouterLink to="/" class="font-serif text-2xl tracking-tight">Semio</RouterLink>

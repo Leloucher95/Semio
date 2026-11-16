@@ -116,6 +116,8 @@ async function appliquer() {
   }
 }
 
+const imprimer = () => window.print()
+
 function ouvrirBloc(id: string) {
   const bloc = blocs.value.find((b) => b.id === id)
   if (bloc) placerDialog.value?.ouvrir({ bloc })
@@ -137,6 +139,7 @@ function ouvrirBloc(id: string) {
         <button type="button" class="btn btn-quiet" @click="renommer">Renommer</button>
         <button type="button" class="btn btn-quiet" @click="supprimer">Supprimer</button>
         <button type="button" class="btn" @click="nouveauModele">Nouvelle semaine type</button>
+        <button type="button" class="btn" @click="imprimer">Imprimer</button>
         <button type="button" class="btn btn-primary" @click="ouvrirAppliquer">Appliquer à un mois</button>
       </div>
     </div>
@@ -189,7 +192,7 @@ function ouvrirBloc(id: string) {
       </aside>
 
       <section>
-        <h2 class="hidden font-serif text-xl print:mb-2 print:block">{{ modeles.courant.nom }}</h2>
+        <h2 class="hidden font-serif text-xl print:mb-2 print:block">Semaine type — {{ modeles.courant.nom }}</h2>
         <WeekGrid
           ref="grille" :blocs="blocs" editable
           @deplacer="modeles.deplacer" @deposer="(tache, cible) => placer(tache, [cible])" @ouvrir="ouvrirBloc"

@@ -27,5 +27,10 @@ export default defineConfig({
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } }, grepInvert: /@mobile/ },
     { name: 'mobile', use: { ...devices['Pixel 7'] }, grep: /@mobile/ },
+    // Firefox, sur demande (E2E_FIREFOX=1 après `npx playwright install firefox`) : seconde lecture des règles
+    // @media print (masquages, colonnes, dimensions). Pas d'export PDF hors Chromium.
+    ...(process.env.E2E_FIREFOX
+      ? [{ name: 'firefox-impression', use: { ...devices['Desktop Firefox'] }, testMatch: /impression.spec.ts/ }]
+      : []),
   ],
 })

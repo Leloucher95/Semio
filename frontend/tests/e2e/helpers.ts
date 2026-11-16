@@ -61,3 +61,56 @@ export async function creerModele(page: Page, nom: string) {
   await page.getByRole('button', { name: 'Créer ma semaine type' }).click()
   await expect(page.getByLabel('Semaine type affichée')).toContainText(nom)
 }
+
+// --- Préparation de données par l'API (mêmes règles serveur que l'interface), pour les tests qui n'évaluent pas la saisie.
+
+export interface Session {
+  token: string
+  id: string
+}
+
+export async function session(page: Page): Promise<Session> {
+  const brut = await page.evaluate(() => localStorage.getItem('pocketbase_auth'))
+  const { token, record } = JSON.parse(brut!)
+  return { token, id: record.id }
+}
+
+export async function creer(page: Page, s: Session, collection: string, data: Record<string, unknown>): Promise<string> {
+  const reponse = await page.request.post(`/api/collections/${collection}/records`, {
+    headers: { Authorization: s.token },
+    data: { owner: s.id, ...data },
+  })
+  expect(reponse.ok(), `${collection} : ${await reponse.text()}`).toBeTruthy()
+  return (await reponse.json()).id
+}
+
+export async function appliquer(page: Page, s: Session, modele: string, annee: number, mois: number) {
+  const reponse = await page.request.post('/api/semio/apply-template', {
+    headers: { Authorization: s.token },
+    data: { modele, annee, mois },
+  })
+  expect(reponse.ok(), await reponse.text()).toBeTruthy()
+}
+
+/**
+ * Semaine type de référence avec `nbTaches` tâches : « École » (lundi→vendredi 08:00–16:00, rubrique Études)
+ * et des objectifs répartis entre Études et Personnel. Renvoie l'id du modèle.
+ */
+export async function semaineParApi(page: Page, s: Session, nbTaches: number) {
+  const etudes = await creer(page, s, 'rubriques', { nom: 'Études', couleur: '#4a6fa5' })
+  const personnel = await creer(page, s, 'rubriques', { nom: 'Personnel', couleur: '#3d6b4f' })
+  const modele = await creer(page, s, 'modeles', { nom: 'Ma semaine' })
+  const ecole = await creer(page, s, 'taches', { nom: 'École', type: 'creneau', couleur: '#4a6fa5', duree_defaut_min: 480, rubrique: etudes })
+  await creer(page, s, 'modele_taches', { modele, tache: ecole })
+  for (let jour = 1; jour <= 5; jour++) {
+    await creer(page, s, 'modele_placements', { modele, tache: ecole, jour_semaine: jour, debut_min: 480, fin_min: 960 })
+  }
+  for (let i = 2; i <= nbTaches; i++) {
+    const tache = await creer(page, s, 'taches', {
+      nom: `Objectif ${String(i).padStart(2, '0')}`, type: 'objectif', couleur: '#3d6b4f',
+      cible_jours_semaine: (i % 7) + 1, cible_minutes_par_jour: i % 3 === 0 ? 30 : 0, rubrique: i % 2 ? personnel : etudes,
+    })
+    await creer(page, s, 'modele_taches', { modele, tache })
+  }
+  return modele
+}

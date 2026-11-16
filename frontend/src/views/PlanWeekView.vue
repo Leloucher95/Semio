@@ -41,6 +41,8 @@ const options = computed(() => store.taches.map((t) => ({ id: t.id, nom: t.nom_s
 
 const placer = (plan_tache: string, creneaux: Creneau[]) => store.placer({ plan_tache }, creneaux)
 
+const imprimer = () => window.print()
+
 function ouvrirBloc(id: string) {
   const bloc = blocs.value.find((b) => b.id === id)
   if (bloc) placerDialog.value?.ouvrir({ bloc })
@@ -56,7 +58,10 @@ function ouvrirBloc(id: string) {
       </div>
       <div class="flex flex-wrap gap-2">
         <RouterLink class="btn" :to="`/planning/${annee}/${mois}`">Suivi du mois</RouterLink>
-        <button v-if="store.plan" type="button" class="btn btn-primary" @click="placerDialog?.ouvrir({})">Placer</button>
+        <template v-if="store.plan">
+          <button type="button" class="btn" @click="imprimer">Imprimer</button>
+          <button type="button" class="btn btn-primary" @click="placerDialog?.ouvrir({})">Placer</button>
+        </template>
       </div>
     </div>
 

@@ -30,3 +30,8 @@
 - 2026-11-16 — Progression hebdomadaire calculée dans le mois affiché uniquement — le suivi appartient à un plan mensuel; à revoir si les semaines à cheval gênent.
 - 2026-11-16 — Supprimer un mois est possible (confirmation) et efface son suivi — seul moyen de réappliquer un autre modèle; jamais fait implicitement.
 - 2026-11-16 — Mois existant ⇒ 409 avec le nom du mois, aucune écriture — vérifié par comptage des enregistrements avant/après.
+- 2026-11-16 — Les vues imprimées sont les vues d'écran avec `@media print` (pas de pages d'impression séparées) — un seul rendu à maintenir, ce qu'on voit est ce qu'on imprime.
+- 2026-11-16 — Impression de la semaine : hauteur de ligne = 165 mm / nombre de demi-heures affichées — toujours une page, même si la grille est élargie.
+- 2026-11-16 — Suivi mensuel : 1 page jusqu'à 16 tâches (mesuré), pagination au-delà avec en-tête répété; jamais de ligne masquée ni de police réduite.
+- 2026-11-16 — « Version vierge » en CSS d'impression uniquement — l'écran et les données ne changent pas.
+- 2026-11-16 — Projet Playwright Firefox sur demande (`E2E_FIREFOX=1`) — le poste de développement bloque ce binaire; `make e2e` reste vert partout.

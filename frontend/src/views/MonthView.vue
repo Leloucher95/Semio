@@ -21,6 +21,14 @@ const router = useRouter()
 const charge = computed(() => store.moisCharge === `${props.annee}-${props.mois}`)
 const erreur = ref('')
 const modeleChoisi = ref('')
+
+/**
+ * Au-delà, le suivi imprimé passe sur plusieurs pages (en-tête répété, aucune ligne coupée ni masquée).
+ * Seuil mesuré par tests/e2e/impression.spec.ts sur un mois de 31 jours avec deux rubriques.
+ */
+const SEUIL_UNE_PAGE = 16
+const vierge = ref(false)
+const imprimer = () => window.print()
 const envoi = ref(false)
 
 watch(() => [props.annee, props.mois] as const, async ([annee, mois]) => {
@@ -107,6 +115,10 @@ async function supprimer() {
         </div>
       </div>
       <div v-if="charge && store.plan" class="flex flex-wrap gap-2">
+        <label class="flex min-h-11 cursor-pointer items-center gap-2 text-sm">
+          <input v-model="vierge" type="checkbox" class="size-5 accent-ink" /> Version vierge
+        </label>
+        <button type="button" class="btn" @click="imprimer">Imprimer</button>
         <RouterLink class="btn" :to="`${lien(props)}/semaine`">Grille de la semaine</RouterLink>
         <button type="button" class="btn" :disabled="envoi" @click="dupliquer">
           Dupliquer vers {{ moisLabel(suivant.annee, suivant.mois) }}
@@ -142,8 +154,11 @@ async function supprimer() {
       Ce mois ne contient aucune tâche : la semaine type appliquée était vide.
     </p>
 
-    <div v-else class="mois mt-6 overflow-x-auto print:mt-0 print:overflow-visible">
-      <h2 class="hidden font-serif text-xl first-letter:uppercase print:mb-1 print:block">Suivi — {{ titre }}</h2>
+    <div v-else class="mois mt-6 overflow-x-auto print:mt-0 print:overflow-visible" :class="{ 'mois-vierge': vierge }">
+      <p v-if="store.taches.length > SEUIL_UNE_PAGE" class="mb-3 text-sm text-ink-soft print:hidden" data-testid="avis-pages">
+        {{ store.taches.length }} tâches : le suivi s’imprimera sur plusieurs pages, avec l’en-tête des jours répété. Aucune ligne n’est masquée.
+      </p>
+      <h2 class="hidden font-serif text-xl print:mb-1 print:block">Suivi — {{ titre }}</h2>
       <table class="mois-table w-full border-collapse text-sm">
         <thead>
           <tr>
@@ -159,10 +174,12 @@ async function supprimer() {
           </tr>
         </thead>
         <tbody v-for="g in groupes" :key="g.rubrique">
-          <tr>
-            <th :colspan="jours.length + 2" scope="colgroup" class="mois-rubrique text-left">{{ g.rubrique }}</th>
+          <tr class="mois-rubrique-ligne">
+            <th :colspan="jours.length + 1" scope="colgroup" class="mois-rubrique text-left">{{ g.rubrique }}</th>
+            <!-- Colonne « Jours » : masquée à l'impression, donc hors de la fusion ci-dessus. -->
+            <td class="mois-rubrique print:hidden" />
           </tr>
-          <tr v-for="t in g.taches" :key="t.id" data-testid="ligne-mois">
+          <tr v-for="t in g.taches" :key="t.id" class="mois-ligne" data-testid="ligne-mois">
             <th scope="row" class="mois-tache text-left font-normal">
               <span class="flex items-center gap-2">
                 <span class="mois-pastille" :style="{ background: t.couleur_snapshot || COULEUR_DEFAUT }" />

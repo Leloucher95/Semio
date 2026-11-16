@@ -6,7 +6,7 @@
 - [x] P1 — Auth + collections + sécurité A/B + relations + bibliothèque
 - [x] P2 — Modèles + grille + formulaire + pointer drag + tests collisions
 - [x] P3 — Plans mensuels + snapshot + duplication + aujourd'hui + suivi
-- [ ] P4 — Impression A4 semaine/mois + tests navigateur
+- [x] P4 — Impression A4 semaine/mois + tests navigateur
 - [ ] P5 — Binaire unique + systemd + R2 + restauration jetable
 - [ ] P6 — `make verify` complet, audit de stabilité, compte rendu factuel
 
@@ -31,3 +31,9 @@
 - **Livré** : `POST /api/semio/apply-template` et `/api/semio/duplicate-month` (transactions, propriétaire tiré de la session, conflit 409 si le mois existe), instantané `plan_taches` (objectifs sans créneau compris), règles du suivi (date réelle dans le mois, tâche du même plan, `fait` dérivé des minutes quand il y a une cible), vue Mois (tableau tâches × jours, coches, navigation, appliquer, dupliquer, supprimer), vue Aujourd'hui/jour (coches 44 px, minutes, progression hebdomadaire, navigation), grille de la semaine d'un mois (modifiable sans toucher au modèle), fuseau du profil appliqué partout.
 - **Vérifié** : `make verify` PASS. Go : M01–M09 (M09 = 6 duplications simultanées ⇒ 1 seul plan, répété 8 fois), D05, T01–T03, sécurité des routes (invité 401, compte B 404, mois invalides 400). Vitest 37/37 (dont `lib/suivi`). Playwright 9/9 : E01 (critères d'acceptation 1 à 8 et 10 sur février/mars 2028), E02 mobile (coche, minutes 60/120, rechargement, **annulation visible sur erreur 500**, navigation, pas de défilement horizontal, cible ≥ 44 px), fuseau (horloge figée à 23:30 UTC, navigateur à New York : Porto-Novo ⇒ 17 novembre, New York ⇒ 16).
 - **Reste / limites** : la progression « x/N jours cette semaine » ne compte que les jours du mois affiché (semaine à cheval sur deux mois comptée en deux parties). Pas d'édition du nom/des cibles d'une tâche déjà copiée dans un mois (l'API l'autorise, pas d'écran). `go test -race` non exécuté (pas de compilateur C sur ce poste).
+
+### P4 — 2026-11-16
+- **Livré** : bouton « Imprimer » sur la semaine type, la semaine d'un mois et le suivi du mois ; `print.css` A4 paysage (`@page`, `print-color-adjust: exact`, interface masquée, semaine toujours sur une page, tableau mensuel avec en-tête répété et lignes insécables) ; option « Version vierge » (cases vides à l'impression, écran et données inchangés) ; avertissement à l'écran quand le suivi dépassera une page.
+- **Vérifié** : Playwright Chromium 4/4 — P01 (semaine type et semaine de février 2028 : jours, heures, nom + horaires dans chaque bloc, aucune navigation/bouton/poignée, pas de débordement, PDF 1 page 842 × 595 pt), P02 (28/29/30/31 colonnes, initiale du 1er, nombre de colonnes de week-end, tableau rectangulaire, 1 page), P03 (12 et 16 tâches sur 31 jours ⇒ 1 page avec lignes ≥ 8 mm, cases ≥ 6 mm, texte ≥ 8 pt ; 30 tâches ⇒ plusieurs pages, les 30 lignes visibles), P04 (vierge). **Seuil mesuré : 16 tâches sur une page, 17 ⇒ 2 pages** (31 jours, 2 rubriques). PDF de référence relus à l'œil (semaine et mois 12 tâches). `make verify` PASS (13 parcours E2E).
+- **NON EXÉCUTÉ — Firefox** : le Firefox de Playwright a été supprimé par la protection Windows du poste au premier lancement (`spawn UNKNOWN`, binaire disparu) ; non contourné. Reproduction ailleurs : `npx playwright install firefox` puis `E2E_FIREFOX=1 npm run e2e`. L'aperçu avant impression réel de Firefox reste à contrôler à la main.
+- **Limite** : avec plus de 2 rubriques le seuil d'une page baisse d'environ une tâche par rubrique supplémentaire ; l'avertissement (seuil fixe à 16) peut donc arriver une ou deux tâches trop tard — la pagination, elle, reste correcte.

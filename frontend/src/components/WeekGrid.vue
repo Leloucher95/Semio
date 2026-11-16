@@ -73,7 +73,7 @@ defineExpose({ deposerTache })
 
 <template>
   <!-- Sur téléphone la grille défile horizontalement ; le bouton « Placer » reste l'accès principal. -->
-  <div class="semaine overflow-x-auto print:overflow-visible">
+  <div class="semaine overflow-x-auto print:overflow-visible" :style="{ '--lignes': lignes }">
     <div class="grid min-w-[46rem] grid-cols-[3rem_repeat(7,minmax(0,1fr))] print:min-w-0" :class="{ 'select-none': enCours }">
       <div />
       <div
