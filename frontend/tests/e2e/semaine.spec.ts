@@ -140,8 +140,14 @@ test('E03 — glisser à la souris : dépôt, déplacement, étirement, collisio
   await page.waitForTimeout(500) // au-delà du délai de regroupement de 300 ms
   expect(envois).toBe(0)
 
-  // Un simple clic n'est pas un glisser : il ouvre le formulaire du bloc.
+  // Un simple clic n'est pas un glisser : il sélectionne le bloc (barre d'actions) sans le déplacer ni ouvrir son formulaire.
   await colonne(page, 3).getByTestId('bloc').click()
+  await expect(page.getByTestId('barre-bloc')).toContainText('mercredi 14:00–16:30')
+  await expect(page.getByRole('dialog')).toBeHidden()
+  await page.waitForTimeout(500)
+  expect(envois).toBe(0)
+  // Le double-clic ouvre le formulaire du bloc.
+  await colonne(page, 3).getByTestId('bloc').dblclick()
   await expect(page.getByRole('dialog')).toBeVisible()
   await page.keyboard.press('Escape')
 

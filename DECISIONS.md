@@ -47,3 +47,4 @@
 - 2026-11-16 — V1.1 : intégration du design validé sans toucher au backend ; le champ `icone` (emoji) est conservé et les initiales sont calculées à l'affichage (`lib/taches.ts`).
 - 2026-11-16 — V1.1 : la barre d'actions d'un bloc est un complément ; le clic ouvre toujours le formulaire et la sélection ne change qu'en fin de geste, pour ne jamais déplacer la grille pendant un glisser.
 - 2026-11-16 — V1.1 : pas de colonne « Semaine » dans le suivi mensuel ; le total « Jours » de la V1 est conservé.
+- 2026-11-16 — V1.1 : clic = sélection du bloc (barre d'actions) ; formulaire par double-clic, « Modifier… » ou Entrée/Espace. Remplace la décision « le clic ouvre toujours le formulaire ».

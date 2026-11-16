@@ -93,7 +93,7 @@ function ouvrirBloc(id: string) {
           @modifier="store.deplacer" @copier="copier" @retirer="store.retirer" @ouvrir="ouvrirBloc" @fermer="selection = ''"
         />
         <p v-else class="flex min-h-[3.75rem] items-center rounded-md border border-dashed border-line px-3 text-sm text-ink-soft">
-          Cliquez ou glissez un bloc : ses réglages rapides (début, durée, copie vers un autre jour) s’affichent ici.
+          Cliquez sur un bloc pour le sélectionner : ses réglages rapides (début, durée, copie vers un autre jour) s’affichent ici. Double-clic ou « Modifier… » ouvre son formulaire.
         </p>
       </div>
       <div class="mt-4 print:mt-0">

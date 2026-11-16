@@ -15,7 +15,10 @@ export interface Bloc extends Creneau {
 /** Ce que transporte un glisser : un bloc existant, ou une tâche venue de la liste. */
 type Charge = { bloc: string } | { tache: string }
 
-/** `selection` : bloc dont la vue affiche la barre d'actions. Elle change en fin de geste (clic, dépôt) ou au focus clavier, jamais pendant un glisser. */
+/**
+ * `selection` : bloc dont la vue affiche la barre d'actions. Un clic sélectionne ; double-clic, Entrée ou Espace ouvrent le formulaire ;
+ * Échap ou un clic dans une zone vide désélectionnent. La sélection ne change jamais pendant un glisser.
+ */
 const props = defineProps<{ blocs: Bloc[]; editable?: boolean; selection?: string }>()
 const emit = defineEmits<{
   deplacer: [id: string, cible: Creneau]
@@ -99,6 +102,7 @@ defineExpose({ deposerTache })
 
       <div
         v-for="j in JOURS" :key="j.iso" :data-jour="j.iso" :aria-label="j.long" role="group"
+        @click.self="emit('selectionner', '')"
         class="semaine-jour relative border-l border-line last:border-r"
         :class="{ 'bg-paper-deep/60': j.iso >= 6 }"
         :style="{ height: `calc(var(--row-h) * ${lignes})` }"
@@ -114,7 +118,9 @@ defineExpose({ deposerTache })
           :aria-label="`${b.titre}, ${j.long} ${horaire(b)}${editable ? ', modifier' : ''}`"
           data-testid="bloc"
           @pointerdown="$event.pointerType === 'mouse' && deplacerBloc($event, b)"
-          @click="editable && (emit('selectionner', b.id), emit('ouvrir', b.id))"
+          @click="editable && emit('selectionner', b.id)"
+          @dblclick="editable && emit('ouvrir', b.id)"
+          @keydown.esc="editable && emit('selectionner', '')"
           @keydown.enter.prevent="editable && emit('ouvrir', b.id)"
           @keydown.space.prevent="editable && emit('ouvrir', b.id)"
         >

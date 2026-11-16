@@ -80,6 +80,7 @@ test('E01 — inscription → tâches → semaine type → février 2028 → sui
   await expect(page.getByTestId('tache').filter({ hasText: 'Lecture du soir' })).toBeVisible()
   await page.goto('/semaine')
   await page.locator('[data-jour="1"]').getByTestId('bloc').click()
+  await page.getByTestId('barre-bloc').getByRole('button', { name: 'Modifier…' }).click()
   await dialog.getByRole('button', { name: 'Retirer du planning' }).click()
   await expect(page.getByTestId('bloc')).toHaveCount(4)
 
