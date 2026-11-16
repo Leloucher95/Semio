@@ -8,7 +8,7 @@
 - [x] P3 — Plans mensuels + snapshot + duplication + aujourd'hui + suivi
 - [x] P4 — Impression A4 semaine/mois + tests navigateur
 - [x] P5 — Binaire unique + systemd + R2 + restauration jetable
-- [ ] P6 — `make verify` complet, audit de stabilité, compte rendu factuel
+- [x] P6 — `make verify` complet, audit de stabilité, compte rendu factuel
 
 ## Journal
 
@@ -42,3 +42,30 @@
 - **Livré** : `backend/exploitation.go` (à chaque démarrage, depuis l'environnement : sauvegardes R2 dans `backups.s3`, quotidien 02:00, rétention 14 ; en-têtes de proxy de confiance ; limitation de débit en production ; SMTP facultatif), alerte `SAUVEGARDES DÉSACTIVÉES` sur la sortie d'erreur et dans les logs PocketBase quand R2 manque, repli SPA limité au front (une route d'API inconnue reste un 404 JSON), `make build-linux`, `deploy/` (`semio.service` durci, `Caddyfile.example`, README : installation, superuser, proxy Caddy/Nginx sans toucher aux autres sites, mise à jour, sauvegarde, restauration), `.env.example` aligné sur les variables réellement lues.
 - **Vérifié** : `make verify` PASS (Go, Vitest 37/37, 16 parcours E2E). Go : O02 (sans R2 ou R2 incomplet ⇒ alerte, cron vide, S3 désactivé ; R2 complet ⇒ `backups.s3` exact ; retrait des variables ⇒ retour à désactivé), proxy/limitation, **restauration sur environnement jetable** (`TestSauvegardePuisRestauration` : archive PocketBase → dossier vide → démarrage → comptes, plans et suivi intacts, mot de passe valide). Playwright : O01/E05 sur le binaire (`/`, 5 routes profondes, script embarqué, rechargement connecté, API d'administration fermée). Binaire lancé sans R2 : alerte lue dans sa sortie, aucun dossier `backups` local créé. `make build-linux` : ELF x86-64 statique de 26 Mo.
 - **NON EXÉCUTÉ — bloquant pour la mise en production** : O03 (sauvegarde réelle vers R2 puis restauration : pas d'identifiants), O04 (non-régression des autres sites du VPS : pas d'accès). Le binaire Linux n'a pas été lancé (poste Windows) : seule sa compilation est vérifiée ; le même code tourne dans le binaire Windows testé.
+
+### P6 — 2026-11-16 — validation finale
+- **Reprise depuis un clone propre** (`git clone` dans un dossier vide, commit `8f88b85`) : `make install` (0 vulnérabilité npm) puis `make verify` ⇒ code de sortie 0. Go : 2 paquets `ok` (24 tests). `vue-tsc` sans erreur. Vitest : 5 fichiers, 37/37. Build front + binaire. Playwright : 16/16 (14 ordinateur 1440 px, 2 téléphone Pixel 7).
+- **`make dev`** : Vite répond sur 5173, `/api/health` passe par le proxy vers PocketBase (200), route profonde servie.
+- **Corrigé pendant la validation** : un enregistrement pouvait changer de plan ou de modèle parent par l'API (test `TestParentImmuable`, rouge puis vert) ; une route d'API inconnue renvoyait la page du front (test O01, rouge puis vert).
+- **Hygiène git** : 85 fichiers suivis, aucun `.env`, binaire, `pb_data` ni `node_modules` ; aucun secret détecté ; aucun test désactivé (`skip`/`only`/`todo`) ; 9 commits au nom du propriétaire, sans mention d'outil.
+
+## Bilan V1
+
+| Matrice | État |
+|---|---|
+| S01–S08 sécurité (API réelle, comptes A/B/invité) | PASS |
+| M01–M09 modèles, instantanés, duplication, atomicité, concurrence | PASS |
+| D01–D05 dates et fuseaux | PASS |
+| G01–G06 grille, collisions, rollback, réponses obsolètes | PASS |
+| T01–T03 suivi | PASS |
+| E01–E05 parcours Playwright (ordinateur et téléphone) | PASS |
+| P01–P04 impression (Chromium, PDF) | PASS |
+| O01–O02 binaire embarqué, absence de R2 signalée | PASS |
+| O03 sauvegarde R2 réelle + restauration | **NON EXÉCUTÉ** — pas d'identifiants R2 ; bloquant pour la production |
+| O04 non-régression des autres sites du VPS | **NON EXÉCUTÉ** — pas d'accès au VPS ; bloquant pour la production |
+| Impression dans Firefox | **NON EXÉCUTÉ** — binaire de test supprimé par la protection Windows du poste |
+| Glisser-déposer au doigt sur un vrai téléphone | **NON EXÉCUTÉ** — non automatisable de façon fiable ; « Placer » testé sur mobile |
+| `go test -race` | **NON EXÉCUTÉ** — pas de compilateur C sur le poste |
+| Lancement du binaire Linux | **NON EXÉCUTÉ** — compilé seulement (poste Windows) |
+
+Limites connues : voir les entrées « Reste / limites » de chaque phase et les deux commentaires `shortcut:` du code.

@@ -41,3 +41,6 @@
 - 2026-11-16 — Limitation de débit PocketBase (règles par défaut) activée seulement si `APP_ENV=production` — sinon les tests E2E la déclenchent.
 - 2026-11-16 — Alerte R2 écrite aussi sur stderr — le logger PocketBase n'écrit que dans sa base de logs, invisible pour `journalctl`.
 - 2026-11-16 — Restauration documentée = décompresser l'archive dans un `pb_data` vide — c'est ce que le test automatisé exécute; le bouton « Restore » de l'admin reste disponible sous Linux.
+- 2026-11-16 — Plage horaire 06:00–22:00 élargie automatiquement à l'heure pleine dès qu'un bloc en sort, sans réglage utilisateur — un horaire hors plage se saisit par « Placer »; aucun bloc n'est jamais coupé.
+- 2026-11-16 — Ordre des rubriques = ordre de création (champ `ordre` présent, pas d'écran de tri) — `vue-draggable-plus` était optionnel dans le cahier des charges.
+- 2026-11-16 — Un enregistrement ne change pas de parent (`plan`, `modele`) : interdit par la règle de mise à jour — évite des créneaux ou un suivi rattachés à un autre mois que leur tâche.
