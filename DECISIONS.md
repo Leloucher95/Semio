@@ -15,3 +15,9 @@
 - 2026-11-16 — Package d'embed dans `backend/web` (pas de `internal/web`) — `go:embed` doit être à côté de `dist`; le repli SPA est `apis.Static` de PocketBase, rien à écrire.
 - 2026-11-16 — Pas de Vue Test Utils/jsdom — la logique testée vit dans `lib/` et les stores Pinia; les composants sont couverts par Playwright. Deux dépendances (et leurs alertes npm audit) en moins.
 - 2026-11-16 — E2E Playwright sur le binaire final — teste l'artefact réellement déployé (embed + repli SPA) sans serveur de dev.
+- 2026-11-16 — Validation des relations dans `OnRecordValidate` (pas dans les hooks de requête) — s'applique aussi aux écritures serveur (appliquer/dupliquer), un seul endroit à auditer.
+- 2026-11-16 — Référence étrangère ou inexistante ⇒ même réponse 400 — pas d'oracle pour deviner des identifiants.
+- 2026-11-16 — Erreurs métier affichables en 409/422 avec message français ; le front n'affiche tel quel que ces statuts — PocketBase répond en anglais sur les autres.
+- 2026-11-16 — Icône de tâche = emoji saisi, pas de dépendance Lucide — le cahier des charges autorise l'un ou l'autre.
+- 2026-11-16 — Pas d'écran « mot de passe oublié » en V1 — dépend d'un SMTP non fourni; un superuser peut réinitialiser depuis `/_/`. SMTP reste configurable par variables d'environnement.
+- 2026-11-16 — Suppression d'une tâche : archivage dans l'interface; suppression définitive seulement depuis les archives, refusée par le serveur tant qu'un modèle l'utilise; les plans gardent leur instantané.

@@ -26,7 +26,7 @@ Ouvrir http://localhost:5173. L'admin PocketBase est sur http://127.0.0.1:8090/_
 | `make verify` | `make test` puis `make e2e` |
 | `make build-linux` | binaire de production `backend/semio-linux-amd64` |
 
-`npm run build` écrit le front dans `backend/web/dist`, que Go embarque (`embed.FS`). Les tests E2E pilotent le **vrai binaire** sur une base jetable (`frontend/test-results/pb_data`).
+`npm run build` écrit le front dans `backend/web/dist`, que Go embarque (`embed.FS`). Les tests E2E pilotent le **vrai binaire** sur une base jetable (`frontend/.e2e-data`).
 
 ## Dépôt
 

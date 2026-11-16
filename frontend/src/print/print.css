@@ -1,0 +1,18 @@
+/* Impression A4 paysage. Les vues imprimables ajoutent leurs règles ici. */
+@page {
+  size: A4 landscape;
+  margin: 10mm;
+}
+
+@media print {
+  html {
+    background: #fff;
+    font-size: 10pt;
+  }
+
+  /* Les fonds portent l'information de couleur des blocs : les navigateurs les retirent par défaut. */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
