@@ -1,0 +1,23 @@
+# Le contexte de build ne contient que les sources du front et du back.
+*
+!frontend/
+!backend/
+!deploy/sauvegarder.sh
+
+# Jamais dans l'image : dépendances locales, sorties de build, données, binaires, secrets.
+**/node_modules
+frontend/dist
+frontend/test-results
+frontend/playwright-report
+frontend/.e2e-data
+backend/web/dist/*
+!backend/web/dist/.gitkeep
+**/pb_data
+**/pb_backups
+backend/semio
+backend/semio-linux-amd64
+**/*.exe
+**/*.test
+**/*.log
+**/.env
+**/.env.*
