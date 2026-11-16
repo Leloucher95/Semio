@@ -25,14 +25,7 @@ Application web en français : tâches réutilisables, semaine type, plan mensue
 - Les commits doivent contenir uniquement un message descriptif et conventionnel, par exemple `feat: implement weekly planner`.
 - Cette règle s'applique à tous les commits, y compris ceux créés par les sous-agents et les skills.
 
-ajoute également dans .claude/settings.json :
-
-{
-  "attribution": {
-    "commit": "",
-    "pr": ""
-  }
-}
+`.claude/settings.json` désactive l'attribution automatique (`attribution.commit` et `attribution.pr` vides).
 
 ## Réflexes de développement
 1. Au début d'une tranche : lire les fichiers concernés, `PROGRESS.md` et les tests associés. Si besoin, invoquer `/livrer-slice`.

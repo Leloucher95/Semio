@@ -65,6 +65,10 @@ func TestHealthEtFallbackSPA(t *testing.T) {
 	if code, _ := a.do("GET", "/api/health", "", ""); code != 200 {
 		t.Fatalf("/api/health = %d", code)
 	}
+	// Le repli SPA n'avale pas l'API.
+	if code, out := a.do("GET", "/api/route-inexistante", "", ""); code != 404 || !strings.Contains(out, `"status":404`) {
+		t.Errorf("route d'API inconnue = %d %s, attendu un 404 JSON", code, out)
+	}
 	// Une route front inconnue du serveur ne doit jamais répondre 404 quand le front est embarqué ;
 	// sans build (dist vide) le repli n'a pas d'index.html, d'où le contrôle conditionnel.
 	code, _ := a.do("GET", "/planning/2028/2", "", "")

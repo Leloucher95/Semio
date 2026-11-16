@@ -1,0 +1,16 @@
+# Exemple pour un VPS SANS reverse proxy existant : Caddy obtient et renouvelle le certificat HTTPS.
+# S'il y a déjà Caddy, Nginx ou Traefik : n'ajouter que ce bloc pour ce domaine, sans toucher aux autres sites
+# (équivalent Nginx dans deploy/README.md).
+
+semio.example.com {
+	encode zstd gzip
+
+	# Semio n'écoute que sur la boucle locale.
+	reverse_proxy 127.0.0.1:8090
+
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy strict-origin-when-cross-origin
+	}
+}

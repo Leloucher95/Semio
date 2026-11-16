@@ -35,3 +35,9 @@
 - 2026-11-16 — Suivi mensuel : 1 page jusqu'à 16 tâches (mesuré), pagination au-delà avec en-tête répété; jamais de ligne masquée ni de police réduite.
 - 2026-11-16 — « Version vierge » en CSS d'impression uniquement — l'écran et les données ne changent pas.
 - 2026-11-16 — Projet Playwright Firefox sur demande (`E2E_FIREFOX=1`) — le poste de développement bloque ce binaire; `make e2e` reste vert partout.
+- 2026-11-16 — Configuration d'exploitation appliquée depuis l'environnement à chaque démarrage (`exploitation.go`) — rien à régler dans l'admin, retirer une variable retire le réglage.
+- 2026-11-16 — `PB_LISTEN`, `PB_DATA_DIR`, `DEFAULT_TIMEZONE` retirés de `.env.example` — l'écoute et le dossier sont des options de `serve`, le fuseau par défaut est une constante du code.
+- 2026-11-16 — `--encryptionEnv=PB_ENCRYPTION_KEY` dans le service — les clés R2/SMTP stockées dans les réglages se retrouvent dans les sauvegardes; elles y sont chiffrées.
+- 2026-11-16 — Limitation de débit PocketBase (règles par défaut) activée seulement si `APP_ENV=production` — sinon les tests E2E la déclenchent.
+- 2026-11-16 — Alerte R2 écrite aussi sur stderr — le logger PocketBase n'écrit que dans sa base de logs, invisible pour `journalctl`.
+- 2026-11-16 — Restauration documentée = décompresser l'archive dans un `pb_data` vide — c'est ce que le test automatisé exécute; le bouton « Restore » de l'admin reste disponible sous Linux.

@@ -7,7 +7,7 @@
 - [x] P2 — Modèles + grille + formulaire + pointer drag + tests collisions
 - [x] P3 — Plans mensuels + snapshot + duplication + aujourd'hui + suivi
 - [x] P4 — Impression A4 semaine/mois + tests navigateur
-- [ ] P5 — Binaire unique + systemd + R2 + restauration jetable
+- [x] P5 — Binaire unique + systemd + R2 + restauration jetable
 - [ ] P6 — `make verify` complet, audit de stabilité, compte rendu factuel
 
 ## Journal
@@ -37,3 +37,8 @@
 - **Vérifié** : Playwright Chromium 4/4 — P01 (semaine type et semaine de février 2028 : jours, heures, nom + horaires dans chaque bloc, aucune navigation/bouton/poignée, pas de débordement, PDF 1 page 842 × 595 pt), P02 (28/29/30/31 colonnes, initiale du 1er, nombre de colonnes de week-end, tableau rectangulaire, 1 page), P03 (12 et 16 tâches sur 31 jours ⇒ 1 page avec lignes ≥ 8 mm, cases ≥ 6 mm, texte ≥ 8 pt ; 30 tâches ⇒ plusieurs pages, les 30 lignes visibles), P04 (vierge). **Seuil mesuré : 16 tâches sur une page, 17 ⇒ 2 pages** (31 jours, 2 rubriques). PDF de référence relus à l'œil (semaine et mois 12 tâches). `make verify` PASS (13 parcours E2E).
 - **NON EXÉCUTÉ — Firefox** : le Firefox de Playwright a été supprimé par la protection Windows du poste au premier lancement (`spawn UNKNOWN`, binaire disparu) ; non contourné. Reproduction ailleurs : `npx playwright install firefox` puis `E2E_FIREFOX=1 npm run e2e`. L'aperçu avant impression réel de Firefox reste à contrôler à la main.
 - **Limite** : avec plus de 2 rubriques le seuil d'une page baisse d'environ une tâche par rubrique supplémentaire ; l'avertissement (seuil fixe à 16) peut donc arriver une ou deux tâches trop tard — la pagination, elle, reste correcte.
+
+### P5 — 2026-11-16
+- **Livré** : `backend/exploitation.go` (à chaque démarrage, depuis l'environnement : sauvegardes R2 dans `backups.s3`, quotidien 02:00, rétention 14 ; en-têtes de proxy de confiance ; limitation de débit en production ; SMTP facultatif), alerte `SAUVEGARDES DÉSACTIVÉES` sur la sortie d'erreur et dans les logs PocketBase quand R2 manque, repli SPA limité au front (une route d'API inconnue reste un 404 JSON), `make build-linux`, `deploy/` (`semio.service` durci, `Caddyfile.example`, README : installation, superuser, proxy Caddy/Nginx sans toucher aux autres sites, mise à jour, sauvegarde, restauration), `.env.example` aligné sur les variables réellement lues.
+- **Vérifié** : `make verify` PASS (Go, Vitest 37/37, 16 parcours E2E). Go : O02 (sans R2 ou R2 incomplet ⇒ alerte, cron vide, S3 désactivé ; R2 complet ⇒ `backups.s3` exact ; retrait des variables ⇒ retour à désactivé), proxy/limitation, **restauration sur environnement jetable** (`TestSauvegardePuisRestauration` : archive PocketBase → dossier vide → démarrage → comptes, plans et suivi intacts, mot de passe valide). Playwright : O01/E05 sur le binaire (`/`, 5 routes profondes, script embarqué, rechargement connecté, API d'administration fermée). Binaire lancé sans R2 : alerte lue dans sa sortie, aucun dossier `backups` local créé. `make build-linux` : ELF x86-64 statique de 26 Mo.
+- **NON EXÉCUTÉ — bloquant pour la mise en production** : O03 (sauvegarde réelle vers R2 puis restauration : pas d'identifiants), O04 (non-régression des autres sites du VPS : pas d'accès). Le binaire Linux n'a pas été lancé (poste Windows) : seule sa compilation est vérifiée ; le même code tourne dans le binaire Windows testé.

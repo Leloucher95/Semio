@@ -1,0 +1,27 @@
+# /etc/systemd/system/semio.service
+# Semio : un seul binaire (API PocketBase + front embarqué), en écoute locale derrière le reverse proxy.
+[Unit]
+Description=Semio - planning hebdomadaire
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=semio
+Group=semio
+WorkingDirectory=/var/lib/semio
+# Secrets et réglages : voir .env.example. Fichier lisible par root et le groupe semio uniquement.
+EnvironmentFile=/etc/semio/semio.env
+ExecStart=/usr/local/bin/semio serve --http=127.0.0.1:8090 --dir=/var/lib/semio/pb_data --encryptionEnv=PB_ENCRYPTION_KEY
+Restart=always
+RestartSec=5
+
+# Durcissement : le service n'écrit que dans son dossier de données.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/semio
+
+[Install]
+WantedBy=multi-user.target
