@@ -46,14 +46,14 @@ const libre = (iso: number) => !collision({ ...props.bloc, jour_semaine: iso }, 
 
     <div v-for="r in reglages" :key="r.nom" class="flex items-center gap-1">
       <span class="mr-1 text-xs font-semibold tracking-wider text-ink-soft uppercase">{{ r.nom }}</span>
-      <button type="button" class="btn w-11 px-0 tabular-nums" :disabled="!r.moins" :aria-label="r.moinsLabel" @click="r.moins && emit('modifier', bloc.id, r.moins)">−30</button>
-      <button type="button" class="btn w-11 px-0 tabular-nums" :disabled="!r.plus" :aria-label="r.plusLabel" @click="r.plus && emit('modifier', bloc.id, r.plus)">+30</button>
+      <button type="button" class="btn w-11 shrink-0 px-0 tabular-nums" :disabled="!r.moins" :aria-label="r.moinsLabel" @click="r.moins && emit('modifier', bloc.id, r.moins)">−30</button>
+      <button type="button" class="btn w-11 shrink-0 px-0 tabular-nums" :disabled="!r.plus" :aria-label="r.plusLabel" @click="r.plus && emit('modifier', bloc.id, r.plus)">+30</button>
     </div>
 
-    <div class="flex items-center gap-1">
+    <div class="flex flex-wrap items-center gap-1">
       <span class="mr-1 text-xs font-semibold tracking-wider text-ink-soft uppercase">Copier vers</span>
       <button
-        v-for="j in JOURS" :key="j.iso" type="button" class="btn w-11 px-0 capitalize"
+        v-for="j in JOURS" :key="j.iso" type="button" class="btn w-11 shrink-0 px-0 capitalize"
         :disabled="!libre(j.iso)" :aria-label="`Copier vers ${j.long}`" @click="emit('copier', bloc.id, [j.iso])"
       >{{ j.court.slice(0, 3) }}</button>
     </div>

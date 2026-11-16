@@ -31,6 +31,9 @@
     font-size: 7.5pt;
     border-width: 0.3mm;
     border-left-width: 1.2mm;
+    /* La sélection (anneau) et le focus sont des repères d'écran : jamais sur la feuille. */
+    box-shadow: none !important;
+    outline: none !important;
   }
 
   /* --- Suivi du mois : une page jusqu'à SEUIL_UNE_PAGE tâches (voir MonthView), pagination propre au-delà. */
