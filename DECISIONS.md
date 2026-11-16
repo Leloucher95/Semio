@@ -44,3 +44,6 @@
 - 2026-11-16 — Plage horaire 06:00–22:00 élargie automatiquement à l'heure pleine dès qu'un bloc en sort, sans réglage utilisateur — un horaire hors plage se saisit par « Placer »; aucun bloc n'est jamais coupé.
 - 2026-11-16 — Ordre des rubriques = ordre de création (champ `ordre` présent, pas d'écran de tri) — `vue-draggable-plus` était optionnel dans le cahier des charges.
 - 2026-11-16 — Un enregistrement ne change pas de parent (`plan`, `modele`) : interdit par la règle de mise à jour — évite des créneaux ou un suivi rattachés à un autre mois que leur tâche.
+- 2026-11-16 — V1.1 : intégration du design validé sans toucher au backend ; le champ `icone` (emoji) est conservé et les initiales sont calculées à l'affichage (`lib/taches.ts`).
+- 2026-11-16 — V1.1 : la barre d'actions d'un bloc est un complément ; le clic ouvre toujours le formulaire et la sélection ne change qu'en fin de geste, pour ne jamais déplacer la grille pendant un glisser.
+- 2026-11-16 — V1.1 : pas de colonne « Semaine » dans le suivi mensuel ; le total « Jours » de la V1 est conservé.

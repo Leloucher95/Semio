@@ -69,3 +69,22 @@
 | Lancement du binaire Linux | **NON EXÉCUTÉ** — compilé seulement (poste Windows) |
 
 Limites connues : voir les entrées « Reste / limites » de chaque phase et les deux commentaires `shortcut:` du code.
+
+## V1.1 — design validé (branche `design-v1.1`) — 2026-11-16
+
+- **Livré (frontend uniquement ; backend, migrations, règles métier et contrats d'API inchangés)** :
+  - Socle : jetons du Semio Design System dans `style.css` (accent, filet fort, surbrillance, fonds de message), en-tête de page à filet d'encre, états vides, case à cocher « papier », boutons et champs à rayon de 4 px.
+  - Navigation téléphone : cinq onglets de largeur égale, pictogramme + libellé sur une ligne, séparés par un filet, onglet actif marqué.
+  - Connexion : bascule « J'ai un compte / Créer un compte », afficher/masquer le mot de passe. Profil : sections Compte / Fuseau horaire / Session, liste IANA complète du navigateur conservée.
+  - Aujourd'hui : bandeau des sept jours avec jauge, bilan du jour, sections « Au programme » et « Objectifs », sept cases de la semaine par objectif, boutons −15 / +15 en plus du champ libre des minutes.
+  - Suivi du mois : colonne du jour en surbrillance, « Supprimer ce mois » dans un menu discret, total mensuel « Jours » conservé (pas de colonne « Semaine »).
+  - Semaine type et semaine d'un mois : menu discret (Nouvelle semaine type, Renommer, Supprimer), blocs d'une demi-heure qui s'ouvrent au survol/focus/sélection, barre d'actions du bloc sélectionné (début ±30, durée ±30, copie vers un jour libre, Modifier…, Retirer).
+  - Bibliothèque : en-tête avec décompte, initiales calculées à l'affichage quand une tâche n'a pas d'icône (champ `icone` inchangé, aucune migration), sélecteur de type à deux positions, saisie rapide lignée.
+- **Vérifié** : `make verify` PASS — Go 2 paquets `ok`, `vue-tsc` sans erreur, Vitest 39/39 (dont 2 nouveaux tests `initiales`), Playwright 18/18 (les 16 parcours V1 + 2 nouveaux dans `tests/e2e/v11.spec.ts` : barre d'actions, boutons ±15). Rendu contrôlé dans Chromium à 390 × 844 et 1440 × 900 sur les six écrans avec des données de démonstration (base jetable locale) : aucun défilement horizontal, cinq onglets de 78 px sans libellé coupé, aucune erreur console ; barre d'actions exercée (durée +30, copie vers vendredi) ; formulaire « Nouvelle tâche » vide à l'ouverture.
+- **Tests modifiés** : une ligne de `tests/e2e/helpers.ts` (le bouton « Pas encore de compte ? S'inscrire » est devenu la bascule « Créer un compte »). Aucun test désactivé ni assoupli. Deux régressions trouvées par les E2E et corrigées dans le code, pas dans les tests : bouton radio du type de tâche devenu incliquable, libellé « Fuseau horaire » porté par deux éléments.
+- **Écarts assumés par rapport aux maquettes** (les maquettes sont des références, la logique réelle prime) :
+  - Un clic sur un bloc ouvre toujours son formulaire (comportement testé en V1) ; la barre d'actions apparaît pour ce bloc après le clic, un glisser ou le focus clavier. Dans la maquette, le clic sélectionnait sans ouvrir le formulaire.
+  - Création et modification d'une tâche restent dans une boîte de dialogue (pas de panneau latéral) ; créer/renommer une semaine type et les confirmations de suppression utilisent encore les boîtes natives du navigateur.
+  - Supprimer une rubrique reste autorisé : ses tâches passent « Sans rubrique » (règle V1), contrairement à la démonstration de la maquette.
+  - Le choix de la semaine type reste une liste déroulante (pas d'onglets).
+- **NON EXÉCUTÉ** : thème sombre (non intégré) ; impression dans Firefox ; glisser au doigt sur un vrai téléphone ; lecteur d'écran réel ; les deux nouveaux tests E2E ont été écrits après le code (ils n'ont pas été vus en échec avant de passer).
