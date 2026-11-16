@@ -14,6 +14,13 @@ export const COULEURS = [
 
 export const COULEUR_DEFAUT = COULEURS[0].hex
 
+/** Repère affiché quand une tâche n'a pas d'icône : « Révisions d’anglais » → « RA », « École » → « ÉC ». */
+export function initiales(nom: string) {
+  const mots = nom.split(/[^\p{L}\p{N}]+/u).filter((m) => m.length > 2)
+  const lettres = mots.length >= 2 ? mots[0]![0]! + mots[1]![0]! : (mots[0] ?? nom.trim()).slice(0, 2)
+  return lettres.toLocaleUpperCase('fr')
+}
+
 /** Saisie rapide : une tâche par ligne non vide. */
 export const parseLignes = (texte: string) =>
   texte.split(/\r?\n/).map((ligne) => ligne.trim().slice(0, 120)).filter(Boolean)

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
+import BlocActions from '../components/BlocActions.vue'
 import PlacerDialog from '../components/PlacerDialog.vue'
 import WeekGrid, { type Bloc } from '../components/WeekGrid.vue'
 import { moisLabel } from '../lib/dates'
@@ -41,6 +42,14 @@ const options = computed(() => store.taches.map((t) => ({ id: t.id, nom: t.nom_s
 
 const placer = (plan_tache: string, creneaux: Creneau[]) => store.placer({ plan_tache }, creneaux)
 
+const selection = ref('')
+const choisi = computed(() => blocs.value.find((b) => b.id === selection.value))
+
+function copier(id: string, jours: number[]) {
+  const p = store.placements.find((x) => x.id === id)
+  if (p) return placer(p.plan_tache, jours.map((jour_semaine) => ({ jour_semaine, debut_min: p.debut_min, fin_min: p.fin_min })))
+}
+
 const imprimer = () => window.print()
 
 function ouvrirBloc(id: string) {
@@ -51,10 +60,10 @@ function ouvrirBloc(id: string) {
 
 <template>
   <div>
-    <div class="flex flex-wrap items-end justify-between gap-3 print:hidden">
+    <div class="entete print:hidden">
       <div>
         <p class="eyebrow">Semaine de <span>{{ titre }}</span></p>
-        <h1 class="mt-1 text-3xl">Planning de la semaine</h1>
+        <h1 class="mt-1 text-[1.75rem] leading-9 sm:text-[2rem]">Planning de la semaine</h1>
       </div>
       <div class="flex flex-wrap gap-2">
         <RouterLink class="btn" :to="`/planning/${annee}/${mois}`">Suivi du mois</RouterLink>
@@ -65,10 +74,10 @@ function ouvrirBloc(id: string) {
       </div>
     </div>
 
-    <p v-if="erreur" class="mt-6 text-danger" role="alert">{{ erreur }}</p>
+    <p v-if="erreur" class="message-erreur mt-6" role="alert">{{ erreur }}</p>
     <p v-else-if="!charge" class="mt-6 text-ink-soft">Chargement…</p>
-    <div v-else-if="!store.plan" class="mt-8 border-l-2 border-accent pl-4">
-      <p class="font-serif text-xl">Pas de planning pour {{ titre }}.</p>
+    <div v-else-if="!store.plan" class="vide">
+      <p class="vide-titre">Pas de planning pour {{ titre }}.</p>
       <RouterLink class="btn btn-primary mt-4" :to="`/planning/${annee}/${mois}`">Préparer ce mois</RouterLink>
     </div>
 
@@ -77,8 +86,18 @@ function ouvrirBloc(id: string) {
         Les changements faits ici ne concernent que {{ titre }} : la semaine type et les autres mois restent tels quels.
       </p>
       <h2 class="hidden font-serif text-xl first-letter:uppercase print:mb-2 print:block">Semaine — {{ titre }}</h2>
+      <!-- Emplacement réservé : la barre apparaît sans déplacer la grille. -->
+      <div class="mt-4 min-h-[3.75rem] print:hidden">
+        <BlocActions
+          v-if="choisi" :bloc="choisi" :blocs="blocs"
+          @modifier="store.deplacer" @copier="copier" @retirer="store.retirer" @ouvrir="ouvrirBloc" @fermer="selection = ''"
+        />
+        <p v-else class="flex min-h-[3.75rem] items-center rounded-md border border-dashed border-line px-3 text-sm text-ink-soft">
+          Cliquez ou glissez un bloc : ses réglages rapides (début, durée, copie vers un autre jour) s’affichent ici.
+        </p>
+      </div>
       <div class="mt-4 print:mt-0">
-        <WeekGrid :blocs="blocs" editable @deplacer="store.deplacer" @ouvrir="ouvrirBloc" />
+        <WeekGrid :blocs="blocs" editable :selection="selection" @deplacer="store.deplacer" @ouvrir="ouvrirBloc" @selectionner="(id) => (selection = id)" />
       </div>
     </template>
 

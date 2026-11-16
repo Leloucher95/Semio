@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { cibleLabel, dureeLabel, parseLignes } from './taches'
+import { cibleLabel, dureeLabel, initiales, parseLignes } from './taches'
 
 describe('saisie rapide', () => {
   it('crée une tâche par ligne non vide, espaces retirés', () => {
@@ -21,5 +21,16 @@ describe('libellés', () => {
     expect(cibleLabel(7, 0)).toBe('tous les jours')
     expect(cibleLabel(1, 0)).toBe('1 jour par semaine')
     expect(cibleLabel(0, 0)).toBe('')
+  })
+})
+
+describe('initiales', () => {
+  it('prend la première lettre des deux premiers mots porteurs de sens', () => {
+    expect(initiales('Révisions d’anglais')).toBe('RA')
+    expect(initiales('Lecture du soir')).toBe('LS')
+  })
+  it('prend deux lettres d’un nom d’un seul mot, accents compris', () => {
+    expect(initiales('École')).toBe('ÉC')
+    expect(initiales('  ')).toBe('')
   })
 })

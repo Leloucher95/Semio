@@ -50,7 +50,7 @@ async function enregistrer() {
 <template>
   <dialog ref="dialog" class="sheet w-[min(32rem,calc(100vw-2rem))] p-0" aria-labelledby="tache-titre">
     <form class="space-y-4 p-5" @submit.prevent="enregistrer">
-      <h2 id="tache-titre" class="text-2xl">{{ id ? 'Modifier la tâche' : 'Nouvelle tâche' }}</h2>
+      <h2 id="tache-titre" class="text-[1.375rem] leading-7">{{ id ? 'Modifier la tâche' : 'Nouvelle tâche' }}</h2>
 
       <div class="flex gap-3">
         <div class="w-20">
@@ -62,18 +62,22 @@ async function enregistrer() {
           <input id="tache-nom" v-model="form.nom" class="field" required maxlength="120" />
         </div>
       </div>
-      <p id="tache-icone-aide" class="-mt-2 text-xs text-ink-soft">Icône : un emoji, facultatif.</p>
+      <p id="tache-icone-aide" class="-mt-2 text-xs text-ink-soft">Icône : un emoji, facultatif. Sans icône, les initiales du nom servent de repère.</p>
 
       <fieldset>
         <legend class="label">Type</legend>
-        <div class="grid grid-cols-2 gap-2">
-          <label class="btn justify-start has-checked:border-ink has-checked:bg-paper-deep">
-            <input v-model="form.type" type="radio" name="tache-type" value="creneau" class="accent-ink" /> Créneau horaire
+        <!-- Deux boutons radio présentés en sélecteur à deux positions. -->
+        <div class="grid grid-cols-2 overflow-hidden rounded border border-line-strong">
+          <label class="relative flex min-h-11 cursor-pointer items-center justify-center bg-card px-2 text-sm font-medium has-checked:bg-ink has-checked:text-paper has-focus-visible:outline-2 has-focus-visible:-outline-offset-2 has-focus-visible:outline-accent">
+            <input v-model="form.type" type="radio" name="tache-type" value="creneau" class="absolute inset-0 cursor-pointer opacity-0" /> Créneau horaire
           </label>
-          <label class="btn justify-start has-checked:border-ink has-checked:bg-paper-deep">
-            <input v-model="form.type" type="radio" name="tache-type" value="objectif" class="accent-ink" /> Objectif à suivre
+          <label class="relative flex min-h-11 cursor-pointer items-center justify-center border-l border-line-strong bg-card px-2 text-sm font-medium has-checked:bg-ink has-checked:text-paper has-focus-visible:outline-2 has-focus-visible:-outline-offset-2 has-focus-visible:outline-accent">
+            <input v-model="form.type" type="radio" name="tache-type" value="objectif" class="absolute inset-0 cursor-pointer opacity-0" /> Objectif à suivre
           </label>
         </div>
+        <p class="mt-1.5 text-xs text-ink-soft">
+          {{ form.type === 'creneau' ? 'Se place à une heure précise dans la grille de la semaine.' : 'Se coche jour après jour, sans heure fixe : un nombre de jours visé et, au besoin, une durée.' }}
+        </p>
       </fieldset>
 
       <div v-if="form.type === 'creneau'">
@@ -102,8 +106,8 @@ async function enregistrer() {
 
       <ColorPicker v-model="form.couleur" nom="tache-couleur" />
 
-      <p v-if="erreur" class="text-sm text-danger" role="alert">{{ erreur }}</p>
-      <div class="flex justify-end gap-2 pt-2">
+      <p v-if="erreur" class="message-erreur" role="alert">{{ erreur }}</p>
+      <div class="flex justify-end gap-2 border-t border-line pt-4">
         <button type="button" class="btn" @click="dialog?.close()">Annuler</button>
         <button type="submit" class="btn btn-primary" :disabled="envoi">Enregistrer</button>
       </div>

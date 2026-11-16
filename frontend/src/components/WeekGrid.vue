@@ -15,11 +15,13 @@ export interface Bloc extends Creneau {
 /** Ce que transporte un glisser : un bloc existant, ou une tâche venue de la liste. */
 type Charge = { bloc: string } | { tache: string }
 
-const props = defineProps<{ blocs: Bloc[]; editable?: boolean }>()
+/** `selection` : bloc dont la vue affiche la barre d'actions. Elle change en fin de geste (clic, dépôt) ou au focus clavier, jamais pendant un glisser. */
+const props = defineProps<{ blocs: Bloc[]; editable?: boolean; selection?: string }>()
 const emit = defineEmits<{
   deplacer: [id: string, cible: Creneau]
   deposer: [tache: string, cible: Creneau]
   ouvrir: [id: string]
+  selectionner: [id: string]
 }>()
 
 const plage = computed(() => plageAffichee(props.blocs))
@@ -39,6 +41,7 @@ function position(c: Creneau) {
   }
 }
 
+const court = (c: Creneau) => c.fin_min - c.debut_min <= PAS
 const horaire = (c: Creneau) => `${formatMin(c.debut_min)}–${formatMin(c.fin_min)}`
 
 function minuteEn(colonne: HTMLElement, clientY: number) {
@@ -49,7 +52,10 @@ function minuteEn(colonne: HTMLElement, clientY: number) {
 const { apercu, enCours, demarrer } = useGridDrag<Charge>({
   minuteEn,
   terminer(charge, cible) {
-    if ('bloc' in charge) emit('deplacer', charge.bloc, cible)
+    if ('bloc' in charge) {
+      emit('deplacer', charge.bloc, cible)
+      emit('selectionner', charge.bloc)
+    }
     else emit('deposer', charge.tache, cible)
   },
 })
@@ -100,22 +106,24 @@ defineExpose({ deposerTache })
         <div
           v-for="b in blocs.filter((b) => b.jour_semaine === j.iso)" :key="b.id"
           class="semaine-bloc absolute inset-x-0.5 overflow-hidden rounded-sm border border-l-4 px-1.5 py-0.5 text-left text-xs leading-tight"
-          :class="[editable ? 'cursor-grab' : '', b.id === idGlisse ? 'opacity-40' : '']"
+          :class="[editable ? 'cursor-grab' : '', b.id === idGlisse ? 'opacity-40' : '', court(b) ? 'semaine-bloc-court text-[0.6875rem]' : '', b.id === selection ? 'ring-2 ring-ink' : '']"
           :style="{ ...position(b), borderColor: b.couleur, background: `color-mix(in srgb, ${b.couleur} 14%, var(--color-card))` }"
           :role="editable ? 'button' : undefined" :tabindex="editable ? 0 : undefined"
+          :aria-pressed="editable ? b.id === selection : undefined"
+          @focus="editable && ($event.target as HTMLElement).matches(':focus-visible') && emit('selectionner', b.id)"
           :aria-label="`${b.titre}, ${j.long} ${horaire(b)}${editable ? ', modifier' : ''}`"
           data-testid="bloc"
           @pointerdown="$event.pointerType === 'mouse' && deplacerBloc($event, b)"
-          @click="editable && emit('ouvrir', b.id)"
+          @click="editable && (emit('selectionner', b.id), emit('ouvrir', b.id))"
           @keydown.enter.prevent="editable && emit('ouvrir', b.id)"
           @keydown.space.prevent="editable && emit('ouvrir', b.id)"
         >
           <!-- Bloc d'une demi-heure : nom et horaire sur une seule ligne, sinon l'horaire serait coupé. -->
           <p class="truncate" :class="{ 'pr-5': editable }">
-            <span class="font-semibold"><span v-if="b.icone" aria-hidden="true">{{ b.icone }} </span>{{ b.titre }}</span>
-            <span v-if="b.fin_min - b.debut_min <= PAS" class="text-ink-soft tabular-nums"> {{ horaire(b) }}</span>
+            <span class="font-semibold"><span v-if="b.icone" class="mr-1" aria-hidden="true">{{ b.icone }}</span>{{ b.titre }}</span>
+            <span v-if="court(b)" class="text-ink-soft tabular-nums"> {{ horaire(b) }}</span>
           </p>
-          <p v-if="b.fin_min - b.debut_min > PAS" class="truncate text-ink-soft tabular-nums">{{ horaire(b) }}</p>
+          <p v-if="!court(b)" class="truncate text-ink-soft tabular-nums">{{ horaire(b) }}</p>
           <template v-if="editable">
             <!-- Poignées : seules zones à `touch-action: none`, pour ne pas bloquer le défilement tactile. -->
             <span

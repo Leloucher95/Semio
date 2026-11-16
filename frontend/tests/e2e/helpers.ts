@@ -7,7 +7,7 @@ export const emailUnique = () => `u${Date.now()}${Math.random().toString(36).sli
 
 export async function inscrire(page: Page, email = emailUnique()) {
   await page.goto('/connexion')
-  await page.getByRole('button', { name: 'Pas encore de compte ? S’inscrire' }).click()
+  await page.getByRole('button', { name: 'Créer un compte' }).click()
   await page.getByLabel('Adresse e-mail').fill(email)
   await page.getByLabel('Mot de passe').fill(MOT_DE_PASSE)
   await page.getByRole('button', { name: 'Créer mon compte' }).click()

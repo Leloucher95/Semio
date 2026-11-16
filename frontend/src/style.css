@@ -9,9 +9,13 @@
   --color-ink: #22302b;
   --color-ink-soft: #5d6862;
   --color-line: #d8ceb9;
-  --color-accent: #b4532a;
+  --color-line-strong: #8f8468;
+  --color-accent: #a84a24;
+  --color-highlight: #f1dccb;
   --color-ok: #3d6b4f;
+  --color-ok-bg: #dfe9df;
   --color-danger: #a23a2e;
+  --color-danger-bg: #f3ddd8;
   --font-serif: "Fraunces Variable", Georgia, "Times New Roman", serif;
   --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -105,6 +109,10 @@
     border-radius: 999px;
   }
 
+  .mois-table .mois-total {
+    border-left: 1px solid var(--color-ink);
+  }
+
   .mois-case {
     padding: 0;
     background: var(--color-card);
@@ -115,8 +123,15 @@
     background: var(--color-paper-deep) !important;
   }
 
-  .mois-aujourdhui {
-    box-shadow: inset 0 -3px 0 var(--color-accent);
+  /* Colonne du jour : repère d'écran uniquement, jamais imprimé. */
+  @media screen {
+    .mois-aujourdhui {
+      background: var(--color-highlight) !important;
+    }
+
+    thead .mois-aujourdhui {
+      box-shadow: inset 0 -3px 0 var(--color-accent);
+    }
   }
 
   .mois-coche {
@@ -136,7 +151,7 @@
 
   /* Cibles tactiles ≥ 44 px (min-h-11). */
   .btn {
-    @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md border border-line bg-card px-4 text-sm font-medium text-ink transition-colors hover:border-ink-soft disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded border border-line-strong bg-card px-4 text-sm font-medium text-ink transition-colors hover:border-ink disabled:cursor-not-allowed disabled:opacity-45;
   }
 
   .btn-primary {
@@ -144,26 +159,93 @@
   }
 
   .btn-danger {
-    @apply border-danger/40 text-danger hover:border-danger;
+    @apply border-danger/50 text-danger hover:border-danger;
   }
 
   .btn-quiet {
-    @apply border-transparent bg-transparent px-2 text-ink-soft underline-offset-4 hover:border-transparent hover:text-ink hover:underline;
+    @apply border-transparent bg-transparent px-3 text-ink-soft hover:border-transparent hover:bg-paper-deep hover:text-ink;
   }
 
   .field {
-    @apply min-h-11 w-full rounded-md border border-line bg-card px-3 text-base text-ink placeholder:text-ink-soft/60 focus:border-ink;
+    @apply min-h-11 w-full rounded border border-line-strong bg-card px-3 text-base text-ink placeholder:text-ink-soft/60 focus:border-ink;
   }
 
   .label {
-    @apply mb-1 block text-xs font-semibold tracking-wider text-ink-soft uppercase;
+    @apply mb-1 block text-sm font-medium text-ink;
   }
 
   .eyebrow {
-    @apply text-xs font-semibold tracking-[0.14em] text-ink-soft uppercase;
+    @apply text-[0.6875rem] leading-4 font-semibold tracking-[0.14em] text-ink-soft uppercase;
   }
 
   .sheet {
-    @apply rounded-lg border border-line bg-card;
+    @apply rounded-md border border-line bg-card;
+  }
+
+  /* En-tête de page : surtitre, titre, actions, puis un filet d'encre comme en haut d'une page d'agenda. */
+  .entete {
+    @apply flex flex-wrap items-end justify-between gap-x-4 gap-y-3 border-b border-ink pb-3;
+  }
+
+  /* État vide : une phrase en italique sous un filet, pas d'illustration. */
+  .vide {
+    @apply mt-8 max-w-xl border-t border-ink pt-4;
+  }
+
+  .vide-titre {
+    @apply font-serif text-[1.375rem] leading-7 italic;
+  }
+
+  .message-ok {
+    @apply rounded bg-ok-bg px-3 py-2.5 text-sm;
+  }
+
+  .message-erreur {
+    @apply rounded bg-danger-bg px-3 py-2.5 text-sm;
+  }
+
+  /* Case à cocher du suivi : une vraie case de papier, 28 px dans une cible de 44 px. */
+  .case {
+    @apply size-7 shrink-0 cursor-pointer appearance-none rounded-xs border-[1.5px] border-line-strong bg-card;
+  }
+
+  .case:checked {
+    border-color: var(--color-ok);
+    background: var(--color-ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23fffdf8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.5l3.2 3.2L13 4.8'/%3E%3C/svg%3E") center / 1rem no-repeat;
+  }
+
+  .papier-ligne {
+    background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.5rem - 1px), var(--color-paper-deep) calc(1.5rem - 1px), var(--color-paper-deep) 1.5rem);
+    background-position: 0 0.625rem;
+    background-attachment: local;
+  }
+
+  /* Trait de couleur d'une tâche, à gauche de son nom. */
+  .trait {
+    @apply w-1 shrink-0 self-stretch rounded-full;
+  }
+
+  .pastille {
+    @apply rounded-full border border-line px-2 py-0.5 text-xs whitespace-nowrap text-ink-soft;
+  }
+
+  /* Bloc d'une demi-heure : il s'ouvre au survol, au focus ou à la sélection pour montrer nom et horaire entiers. */
+  @media screen {
+    .semaine-bloc-court:hover,
+    .semaine-bloc-court:focus-visible,
+    .semaine-bloc-court[aria-pressed="true"] {
+      z-index: 5;
+      height: auto !important;
+      min-height: calc(var(--row-h) * 2);
+      box-shadow: 0 6px 16px -8px rgb(34 48 43 / 0.45);
+    }
+
+    .semaine-bloc-court:hover p,
+    .semaine-bloc-court:focus-visible p,
+    .semaine-bloc-court[aria-pressed="true"] p {
+      /* !important : `truncate` est une classe utilitaire, prioritaire sur la couche des composants. */
+      overflow: visible !important;
+      white-space: normal !important;
+    }
   }
 }

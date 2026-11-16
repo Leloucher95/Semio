@@ -105,36 +105,44 @@ async function supprimer() {
 
 <template>
   <div>
-    <div class="flex flex-wrap items-end justify-between gap-3 print:hidden">
+    <div class="entete print:hidden">
       <div>
         <p class="eyebrow">Suivi du mois</p>
         <div class="mt-1 flex items-center gap-2">
-          <RouterLink class="btn px-3" :to="lien(precedent)" :aria-label="`Mois précédent : ${moisLabel(precedent.annee, precedent.mois)}`">←</RouterLink>
-          <h1 class="min-w-48 text-center text-3xl first-letter:uppercase" data-testid="mois-titre">{{ titre }}</h1>
-          <RouterLink class="btn px-3" :to="lien(suivant)" :aria-label="`Mois suivant : ${moisLabel(suivant.annee, suivant.mois)}`">→</RouterLink>
+          <RouterLink class="btn w-11 px-0" :to="lien(precedent)" :aria-label="`Mois précédent : ${moisLabel(precedent.annee, precedent.mois)}`"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5" /></svg></RouterLink>
+          <h1 class="min-w-44 text-center text-[1.75rem] leading-9 first-letter:uppercase sm:min-w-60 sm:text-[2rem]" data-testid="mois-titre">{{ titre }}</h1>
+          <RouterLink class="btn w-11 px-0" :to="lien(suivant)" :aria-label="`Mois suivant : ${moisLabel(suivant.annee, suivant.mois)}`"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5" /></svg></RouterLink>
         </div>
       </div>
-      <div v-if="charge && store.plan" class="flex flex-wrap gap-2">
-        <label class="flex min-h-11 cursor-pointer items-center gap-2 text-sm">
+      <div v-if="charge && store.plan" class="flex flex-wrap items-center gap-2">
+        <label class="flex min-h-11 cursor-pointer items-center gap-2 px-1 text-sm">
           <input v-model="vierge" type="checkbox" class="size-5 accent-ink" /> Version vierge
         </label>
         <button type="button" class="btn" @click="imprimer">Imprimer</button>
         <RouterLink class="btn" :to="`${lien(props)}/semaine`">Grille de la semaine</RouterLink>
-        <button type="button" class="btn" :disabled="envoi" @click="dupliquer">
+        <button type="button" class="btn btn-primary" :disabled="envoi" @click="dupliquer">
           Dupliquer vers {{ moisLabel(suivant.annee, suivant.mois) }}
         </button>
-        <button type="button" class="btn btn-quiet" @click="supprimer">Supprimer ce mois</button>
+        <!-- Action rare et destructrice : rangée dans un menu discret. -->
+        <details class="relative">
+          <summary class="btn btn-quiet w-11 list-none px-0 [&::-webkit-details-marker]:hidden" aria-label="Autres actions sur ce mois">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><circle cx="3.5" cy="9" r="1.6" /><circle cx="9" cy="9" r="1.6" /><circle cx="14.5" cy="9" r="1.6" /></svg>
+          </summary>
+          <div class="sheet absolute right-0 z-10 mt-1 min-w-52 p-1 shadow-[0_12px_32px_-16px_rgb(34_48_43/0.28)]">
+            <button type="button" class="btn btn-quiet w-full justify-start text-danger hover:text-danger" @click="supprimer">Supprimer ce mois…</button>
+          </div>
+        </details>
       </div>
     </div>
 
-    <p v-if="erreur" class="mt-6 text-danger" role="alert">{{ erreur }}</p>
+    <p v-if="erreur" class="message-erreur mt-6" role="alert">{{ erreur }}</p>
     <p v-else-if="!charge" class="mt-6 text-ink-soft">Chargement…</p>
 
-    <div v-else-if="!store.plan" class="mt-8 max-w-lg border-l-2 border-accent pl-4">
-      <p class="font-serif text-xl">Pas encore de planning pour {{ titre }}.</p>
+    <div v-else-if="!store.plan" class="vide">
+      <p class="vide-titre">Pas encore de planning pour {{ titre }}.</p>
       <template v-if="modeles.modeles.length">
-        <p class="mt-1 text-ink-soft">Appliquez une semaine type : le mois en garde sa propre copie, que vous pourrez ajuster sans toucher au modèle.</p>
-        <form class="mt-4 flex flex-wrap items-end gap-2" @submit.prevent="appliquer">
+        <p class="mt-2 text-ink-soft">Appliquez une semaine type : le mois en garde sa propre copie, que vous pourrez ajuster sans toucher au modèle.</p>
+        <form class="mt-4 flex flex-wrap items-end gap-3" @submit.prevent="appliquer">
           <div>
             <label class="label" for="modele-a-appliquer">Semaine type</label>
             <select id="modele-a-appliquer" v-model="modeleChoisi" class="field" required>
@@ -145,7 +153,7 @@ async function supprimer() {
         </form>
       </template>
       <template v-else>
-        <p class="mt-1 text-ink-soft">Commencez par composer une semaine type, puis appliquez-la à ce mois.</p>
+        <p class="mt-2 text-ink-soft">Commencez par composer une semaine type, puis appliquez-la à ce mois.</p>
         <RouterLink class="btn btn-primary mt-4" to="/semaine">Composer ma semaine type</RouterLink>
       </template>
     </div>
@@ -159,7 +167,7 @@ async function supprimer() {
         {{ store.taches.length }} tâches : le suivi s’imprimera sur plusieurs pages, avec l’en-tête des jours répété. Aucune ligne n’est masquée.
       </p>
       <h2 class="hidden font-serif text-xl print:mb-1 print:block">Suivi — {{ titre }}</h2>
-      <table class="mois-table w-full border-collapse text-sm">
+      <table class="mois-table w-full border-collapse border-t-2 border-t-ink text-sm">
         <thead>
           <tr>
             <th scope="col" class="mois-tache text-left font-semibold">Tâche</th>
@@ -170,7 +178,7 @@ async function supprimer() {
               <span class="block text-[0.65rem] text-ink-soft uppercase" aria-hidden="true">{{ j.initiale }}</span>
               <RouterLink :to="`/jour/${j.date}`" class="font-semibold tabular-nums print:no-underline" :aria-label="`${j.long} ${j.n}`">{{ j.n }}</RouterLink>
             </th>
-            <th scope="col" class="px-2 text-right font-semibold print:hidden">Jours</th>
+            <th scope="col" class="mois-total px-2 text-right font-semibold print:hidden">Jours</th>
           </tr>
         </thead>
         <tbody v-for="g in groupes" :key="g.rubrique">
@@ -184,22 +192,25 @@ async function supprimer() {
               <span class="flex items-center gap-2">
                 <span class="mois-pastille" :style="{ background: t.couleur_snapshot || COULEUR_DEFAUT }" />
                 <span class="min-w-0">
-                  <span class="block truncate font-medium"><span v-if="t.icone_snapshot" aria-hidden="true">{{ t.icone_snapshot }} </span>{{ t.nom_snapshot }}</span>
+                  <span class="block truncate font-medium"><span v-if="t.icone_snapshot" class="mr-1.5" aria-hidden="true">{{ t.icone_snapshot }}</span>{{ t.nom_snapshot }}</span>
                   <span v-if="cible(t)" class="block truncate text-xs text-ink-soft">{{ cible(t) }}</span>
                 </span>
               </span>
             </th>
-            <td v-for="j in jours" :key="j.n" class="mois-case" :class="{ 'mois-weekend': j.iso >= 6 }">
+            <td v-for="j in jours" :key="j.n" class="mois-case" :class="{ 'mois-weekend': j.iso >= 6, 'mois-aujourdhui': j.date === aujourdhui }">
               <button
                 type="button" class="mois-coche" :aria-pressed="store.etatDe(t.id, j.date).fait"
                 :aria-label="`${t.nom_snapshot}, ${j.long} ${j.n}`"
                 @click="store.cocher(t, j.date, !store.etatDe(t.id, j.date).fait)"
               >{{ contenu(t, j.date) }}</button>
             </td>
-            <td class="px-2 text-right text-ink-soft tabular-nums print:hidden">{{ joursFaits(store.suivis, t.id, dates) }}</td>
+            <td class="mois-total px-2 text-right tabular-nums print:hidden">{{ joursFaits(store.suivis, t.id, dates) }}</td>
           </tr>
         </tbody>
       </table>
+      <p class="mt-3 text-xs text-ink-soft print:hidden">
+        Un clic coche ou décoche. Un nombre indique des minutes saisies sans que l’objectif du jour soit atteint. Le numéro d’un jour ouvre son suivi détaillé.
+      </p>
     </div>
   </div>
 </template>

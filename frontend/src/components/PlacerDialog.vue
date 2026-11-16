@@ -51,7 +51,7 @@ function retirer() {
 <template>
   <dialog ref="dialog" class="sheet w-[min(30rem,calc(100vw-2rem))] p-0" aria-labelledby="placer-titre">
     <form class="space-y-4 p-5" @submit.prevent="valider">
-      <h2 id="placer-titre" class="text-2xl">{{ form.id ? form.titre : 'Placer une tâche' }}</h2>
+      <h2 id="placer-titre" class="text-[1.375rem] leading-7">{{ form.id ? form.titre : 'Placer une tâche' }}</h2>
 
       <div v-if="!form.id">
         <label class="label" for="placer-tache">Tâche</label>
@@ -90,9 +90,9 @@ function retirer() {
           </select>
         </div>
       </div>
-      <p v-if="erreur" class="text-sm text-danger" role="alert">{{ erreur }}</p>
+      <p v-if="erreur" class="message-erreur" role="alert">{{ erreur }}</p>
 
-      <div class="flex flex-wrap justify-end gap-2 pt-2">
+      <div class="flex flex-wrap justify-end gap-2 border-t border-line pt-4">
         <button v-if="form.id" type="button" class="btn btn-danger mr-auto" @click="retirer">Retirer du planning</button>
         <button type="button" class="btn" @click="dialog?.close()">Annuler</button>
         <button type="submit" class="btn btn-primary" :disabled="!!erreur">{{ form.id ? 'Enregistrer' : 'Placer' }}</button>
