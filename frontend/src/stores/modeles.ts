@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { owner, pb } from '../lib/pb'
-import type { Modele, ModelePlacement, ModeleTache } from '../lib/types'
+import type { Creneau, Modele, ModelePlacement, ModeleTache, Tache } from '../lib/types'
 import { usePlacements } from './placements'
 
 /** Semaines types : un modèle = des tâches membres (objectifs compris) + des créneaux par jour de semaine. */
@@ -66,10 +66,27 @@ export const useModeles = defineStore('modeles', () => {
     placements.liste.value = placements.liste.value.filter((p) => p.tache !== tache)
   }
 
+  /**
+   * Création rapide : tâche (nouvelle ou existante), adhésion au modèle et créneaux en une seule transaction serveur.
+   * En cas de refus rien n'est créé et l'état local ne bouge pas. Renvoie la tâche, à verser dans la bibliothèque.
+   */
+  async function ajoutRapide(corps: {
+    tache?: string
+    nouvelle?: Partial<Pick<Tache, 'nom' | 'type' | 'rubrique' | 'couleur' | 'duree_defaut_min' | 'cible_jours_semaine' | 'cible_minutes_par_jour'>>
+    creneaux: Creneau[]
+  }) {
+    const reponse = await pb.send<{ tache: Tache; membre: ModeleTache; placements: ModelePlacement[] }>(
+      '/api/semio/quick-add', { method: 'POST', body: { modele: courantId.value, ...corps } },
+    )
+    if (!estMembre(reponse.tache.id)) membres.value.push(reponse.membre)
+    placements.liste.value.push(...reponse.placements)
+    return reponse.tache
+  }
+
   return {
     modeles, courantId, courant, membres, charge, estMembre,
     placements: placements.liste,
-    load, ouvrir, creer, renommer, supprimer, assurerMembre, retirerMembre,
+    load, ouvrir, creer, renommer, supprimer, assurerMembre, retirerMembre, ajoutRapide,
     placer: placements.placer, deplacer: placements.deplacer, retirer: placements.retirer,
   }
 })

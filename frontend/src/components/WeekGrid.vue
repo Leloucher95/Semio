@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useGridDrag } from '../composables/useGridDrag'
 import { formatMin, JOURS } from '../lib/dates'
+import { debutDepuisClic } from '../lib/creation'
 import { collision, PAS, plageAffichee } from '../lib/grid'
 import type { Creneau } from '../lib/types'
 
@@ -19,12 +20,13 @@ type Charge = { bloc: string } | { tache: string }
  * `selection` : bloc dont la vue affiche la barre d'actions. Un clic sélectionne ; double-clic, Entrée ou Espace ouvrent le formulaire ;
  * Échap ou un clic dans une zone vide désélectionnent. La sélection ne change jamais pendant un glisser.
  */
-const props = defineProps<{ blocs: Bloc[]; editable?: boolean; selection?: string }>()
+const props = defineProps<{ blocs: Bloc[]; editable?: boolean; selection?: string; /** un clic dans une zone libre propose d'y créer une activité */ creable?: boolean }>()
 const emit = defineEmits<{
   deplacer: [id: string, cible: Creneau]
   deposer: [tache: string, cible: Creneau]
   ouvrir: [id: string]
   selectionner: [id: string]
+  creer: [cible: { jour_semaine: number; debut_min: number }]
 }>()
 
 const plage = computed(() => plageAffichee(props.blocs))
@@ -62,6 +64,12 @@ const { apercu, enCours, demarrer } = useGridDrag<Charge>({
     else emit('deposer', charge.tache, cible)
   },
 })
+
+/** Clic dans une zone libre d'une colonne : désélectionne, et propose la création dans la demi-heure visée. */
+function clicLibre(e: MouseEvent, jour: number) {
+  emit('selectionner', '')
+  if (props.creable) emit('creer', { jour_semaine: jour, debut_min: debutDepuisClic(minuteEn(e.currentTarget as HTMLElement, e.clientY)) })
+}
 
 const idGlisse = computed(() => (enCours.value && 'bloc' in enCours.value ? enCours.value.bloc : undefined))
 const apercuInvalide = computed(() => apercu.value !== null && collision(apercu.value, props.blocs, idGlisse.value))
@@ -102,9 +110,9 @@ defineExpose({ deposerTache })
 
       <div
         v-for="j in JOURS" :key="j.iso" :data-jour="j.iso" :aria-label="j.long" role="group"
-        @click.self="emit('selectionner', '')"
+        @click.self="clicLibre($event, j.iso)"
         class="semaine-jour relative border-l border-line last:border-r"
-        :class="{ 'bg-paper-deep/60': j.iso >= 6 }"
+        :class="{ 'bg-paper-deep/60': j.iso >= 6, 'cursor-cell print:cursor-auto': creable }"
         :style="{ height: `calc(var(--row-h) * ${lignes})` }"
       >
         <div

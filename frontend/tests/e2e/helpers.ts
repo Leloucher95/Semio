@@ -57,8 +57,11 @@ export async function creerTache(page: Page, t: TacheE2E) {
 
 export async function creerModele(page: Page, nom: string) {
   await page.goto('/semaine')
-  page.once('dialog', (d) => d.accept(nom))
+  // V1.2 : le nom se saisit dans une boîte de dialogue de l'application, plus dans un prompt() du navigateur.
   await page.getByRole('button', { name: 'Créer ma semaine type' }).click()
+  const dialog = page.getByRole('dialog')
+  await dialog.getByLabel('Nom').fill(nom)
+  await dialog.getByRole('button', { name: 'Créer', exact: true }).click()
   await expect(page.getByLabel('Semaine type affichée')).toContainText(nom)
 }
 

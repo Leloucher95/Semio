@@ -94,6 +94,11 @@ test('V1.1 — clic = sélection : barre d’actions, ouverture du formulaire, d
   await lundi.click()
   await page.locator('[data-jour="7"]').click({ position: { x: 20, y: 20 } })
   await expect(barre).toHaveCount(0)
+  // V1.2 : ce même clic dans une zone libre propose aussi d'y créer une activité ; Échap referme sans rien créer.
+  await expect(dialog.getByLabel('Que voulez-vous faire ?')).toBeFocused()
+  await page.keyboard.press('Escape')
+  await expect(dialog).toBeHidden()
+  await expect(page.getByTestId('bloc')).toHaveCount(5)
 
   // Retirer le bloc sélectionné fait disparaître la barre avec lui.
   await lundi.click()

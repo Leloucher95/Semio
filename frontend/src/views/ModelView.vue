@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { computed, nextTick, onMounted, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import BlocActions from '../components/BlocActions.vue'
+import CreationRapide from '../components/CreationRapide.vue'
+import ObjectifRapide from '../components/ObjectifRapide.vue'
 import PlacerDialog from '../components/PlacerDialog.vue'
 import WeekGrid, { type Bloc } from '../components/WeekGrid.vue'
 import { MOIS, moisLabel, parseYmd, todayIn } from '../lib/dates'
@@ -32,6 +34,11 @@ onMounted(async () => {
 
 const grille = ref<InstanceType<typeof WeekGrid>>()
 const placerDialog = ref<InstanceType<typeof PlacerDialog>>()
+const creation = ref<InstanceType<typeof CreationRapide>>()
+const objectif = ref<InstanceType<typeof ObjectifRapide>>()
+
+/** Semaine encore vierge : ni tâche, ni objectif, ni créneau. */
+const vierge = computed(() => !modeles.membres.length && !modeles.placements.length)
 
 const blocs = computed<Bloc[]>(() =>
   modeles.placements.map((p) => {
@@ -77,19 +84,51 @@ async function tenter(action: () => Promise<unknown>, echec: string) {
   }
 }
 
-async function nouveauModele() {
-  const nom = prompt('Nom de la semaine type :', modeles.modeles.length ? '' : 'Ma semaine')?.trim()
-  if (nom && (await tenter(() => modeles.creer(nom), 'Le modèle n’a pas pu être créé.'))) toasts.ok('Semaine type créée.')
+// Créer, renommer, supprimer une semaine type : boîtes de dialogue de l'application, jamais celles du navigateur.
+const nomDialog = ref<HTMLDialogElement>()
+const nomChamp = ref<HTMLInputElement>()
+const nomForm = reactive({ mode: 'creer' as 'creer' | 'renommer', nom: '', envoi: false, erreur: '' })
+const suppressionDialog = ref<HTMLDialogElement>()
+const suppression = reactive({ envoi: false, erreur: '' })
+
+function ouvrirNom(mode: 'creer' | 'renommer') {
+  Object.assign(nomForm, { mode, nom: mode === 'renommer' ? (modeles.courant?.nom ?? '') : modeles.modeles.length ? '' : 'Ma semaine', envoi: false, erreur: '' })
+  nomDialog.value?.showModal()
+  nextTick(() => nomChamp.value?.select())
 }
 
-async function renommer() {
-  const nom = prompt('Nouveau nom :', modeles.courant?.nom)?.trim()
-  if (nom) await tenter(() => modeles.renommer(nom), 'Le modèle n’a pas pu être renommé.')
+async function enregistrerNom() {
+  const nom = nomForm.nom.trim()
+  if (!nom || nomForm.envoi) return
+  nomForm.envoi = true
+  try {
+    await (nomForm.mode === 'creer' ? modeles.creer(nom) : modeles.renommer(nom))
+    nomDialog.value?.close()
+    toasts.ok(nomForm.mode === 'creer' ? 'Semaine type créée.' : 'Semaine type renommée.')
+  } catch (e) {
+    nomForm.erreur = messageErreur(e, 'Le nom n’a pas pu être enregistré.')
+  } finally {
+    nomForm.envoi = false
+  }
+}
+
+function ouvrirSuppression() {
+  Object.assign(suppression, { envoi: false, erreur: '' })
+  suppressionDialog.value?.showModal()
 }
 
 async function supprimer() {
-  if (!confirm(`Supprimer la semaine type « ${modeles.courant?.nom} » ? Les mois déjà créés ne changent pas.`)) return
-  if (await tenter(() => modeles.supprimer(), 'Le modèle n’a pas pu être supprimé.')) toasts.ok('Semaine type supprimée.')
+  if (suppression.envoi) return
+  suppression.envoi = true
+  try {
+    await modeles.supprimer()
+    suppressionDialog.value?.close()
+    toasts.ok('Semaine type supprimée.')
+  } catch (e) {
+    suppression.erreur = messageErreur(e, 'La semaine type n’a pas pu être supprimée.')
+  } finally {
+    suppression.envoi = false
+  }
 }
 
 function basculer(t: Tache, membre: boolean) {
@@ -156,9 +195,9 @@ function ouvrirBloc(id: string) {
             <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><circle cx="3.5" cy="9" r="1.6" /><circle cx="9" cy="9" r="1.6" /><circle cx="14.5" cy="9" r="1.6" /></svg>
           </summary>
           <div class="sheet absolute left-0 z-10 mt-1 min-w-56 p-1 shadow-[0_12px_32px_-16px_rgb(34_48_43/0.28)] sm:right-0 sm:left-auto" @click="fermerMenu">
-            <button type="button" class="btn btn-quiet w-full justify-start text-ink" @click="nouveauModele">Nouvelle semaine type</button>
-            <button type="button" class="btn btn-quiet w-full justify-start text-ink" @click="renommer">Renommer</button>
-            <button type="button" class="btn btn-quiet w-full justify-start text-danger hover:text-danger" @click="supprimer">Supprimer…</button>
+            <button type="button" class="btn btn-quiet w-full justify-start text-ink" @click="ouvrirNom('creer')">Nouvelle semaine type</button>
+            <button type="button" class="btn btn-quiet w-full justify-start text-ink" @click="ouvrirNom('renommer')">Renommer</button>
+            <button type="button" class="btn btn-quiet w-full justify-start text-danger hover:text-danger" @click="ouvrirSuppression">Supprimer…</button>
           </div>
         </details>
         <button type="button" class="btn" @click="imprimer">Imprimer</button>
@@ -170,9 +209,9 @@ function ouvrirBloc(id: string) {
     <p v-else-if="!modeles.charge || !library.charge" class="mt-6 text-ink-soft">Chargement…</p>
 
     <div v-else-if="!modeles.courant" class="vide">
-      <p class="vide-titre">Aucune semaine type pour l’instant.</p>
-      <p class="mt-2 text-ink-soft">Une semaine type est la recette de vos semaines : vous l’appliquez ensuite à un mois, qui en garde sa propre copie.</p>
-      <button type="button" class="btn btn-primary mt-4" @click="nouveauModele">Créer ma semaine type</button>
+      <p class="vide-titre">Votre semaine commence ici.</p>
+      <p class="mt-2 text-ink-soft">Créez votre semaine type, puis cliquez sur une heure pour y ajouter vos activités. Vous l’appliquerez ensuite au mois de votre choix.</p>
+      <button type="button" class="btn btn-primary mt-4" @click="ouvrirNom('creer')">Créer ma semaine type</button>
     </div>
 
     <template v-else>
@@ -182,8 +221,19 @@ function ouvrirBloc(id: string) {
           v-if="choisi" :bloc="choisi" :blocs="blocs"
           @modifier="modeles.deplacer" @copier="copier" @retirer="modeles.retirer" @ouvrir="ouvrirBloc" @fermer="selection = ''"
         />
+        <!-- Semaine vierge : tout se fait d'ici, sans passer par la bibliothèque. -->
+        <div v-else-if="vierge" class="sheet flex flex-wrap items-center gap-x-5 gap-y-3 px-4 py-3" data-testid="demarrage">
+          <div class="min-w-0 flex-1 basis-72">
+            <p class="font-serif text-[1.375rem] leading-7 italic">Votre semaine commence ici.</p>
+            <p class="mt-1 text-sm text-ink-soft">Cliquez sur une heure pour ajouter votre première activité, ou créez un objectif sans horaire.</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" class="btn btn-primary" @click="creation?.ouvrir({ jour_semaine: 1, debut_min: 480 })">Ajouter une activité</button>
+            <button type="button" class="btn" @click="objectif?.ouvrir()">Ajouter un objectif</button>
+          </div>
+        </div>
         <p v-else class="flex min-h-[3.75rem] items-center rounded-md border border-dashed border-line px-3 text-sm text-ink-soft">
-          Cliquez sur un bloc pour le sélectionner : ses réglages rapides (début, durée, copie vers un autre jour) s’affichent ici. Double-clic ou « Modifier… » ouvre son formulaire.
+          Cliquez sur une heure libre pour ajouter une activité, ou sur un bloc pour le régler (début, durée, copie vers un autre jour). Double-clic ou « Modifier… » ouvre son formulaire.
         </p>
       </div>
 
@@ -193,10 +243,14 @@ function ouvrirBloc(id: string) {
             <h2 class="text-lg">Tâches</h2>
             <button type="button" class="btn btn-primary min-h-9" @click="placerDialog?.ouvrir({})">Placer</button>
           </div>
-          <p v-if="!library.actives.length" class="py-3 text-sm text-ink-soft">
-            La bibliothèque est vide. <RouterLink class="underline" to="/bibliotheque">Créer des tâches</RouterLink>
+          <div class="flex flex-wrap gap-2 py-2">
+            <button type="button" class="btn min-h-11 flex-1 px-3" @click="creation?.ouvrir({ jour_semaine: 1, debut_min: 480 })">+ Ajouter une activité</button>
+            <button type="button" class="btn min-h-11 flex-1 px-3" @click="objectif?.ouvrir()">+ Ajouter un objectif</button>
+          </div>
+          <p v-if="!library.actives.length" class="pb-2 text-xs text-ink-soft">
+            Aucune activité pour l’instant : cliquez sur une heure de la grille, ou utilisez les boutons ci-dessus.
           </p>
-          <p v-else class="py-2 text-xs text-ink-soft">
+          <p v-else class="pb-2 text-xs text-ink-soft">
             Cochez les tâches de cette semaine. Glissez la poignée ⠿ vers la grille, ou utilisez « Placer ».
           </p>
           <ul>
@@ -228,7 +282,7 @@ function ouvrirBloc(id: string) {
         <section>
           <h2 class="hidden font-serif text-xl print:mb-2 print:block">Semaine type — {{ modeles.courant.nom }}</h2>
           <WeekGrid
-            ref="grille" :blocs="blocs" editable :selection="selection"
+            ref="grille" :blocs="blocs" editable creable :selection="selection" @creer="(cible) => creation?.ouvrir(cible)"
             @deplacer="modeles.deplacer" @deposer="(tache, cible) => placer(tache, [cible])" @ouvrir="ouvrirBloc" @selectionner="(id) => (selection = id)"
           />
         </section>
@@ -260,6 +314,39 @@ function ouvrirBloc(id: string) {
           <button type="submit" class="btn btn-primary" :disabled="cible.envoi">Appliquer</button>
         </div>
       </form>
+    </dialog>
+
+    <CreationRapide ref="creation" :blocs="blocs" />
+    <ObjectifRapide ref="objectif" />
+
+    <dialog ref="nomDialog" class="sheet w-[min(26rem,calc(100vw-1.5rem))] p-0 max-sm:mt-3 max-sm:mb-auto" aria-labelledby="nom-titre">
+      <form class="space-y-4 p-5" @submit.prevent="enregistrerNom">
+        <h2 id="nom-titre" class="text-[1.375rem] leading-7">{{ nomForm.mode === 'creer' ? 'Nouvelle semaine type' : 'Renommer la semaine type' }}</h2>
+        <div>
+          <label class="label" for="nom-modele">Nom</label>
+          <input id="nom-modele" ref="nomChamp" v-model="nomForm.nom" class="field min-h-12" required maxlength="80" autocomplete="off" />
+          <p v-if="nomForm.mode === 'creer'" class="mt-1.5 text-xs text-ink-soft">Vous pourrez le changer à tout moment.</p>
+        </div>
+        <p v-if="nomForm.erreur" class="message-erreur" role="alert">{{ nomForm.erreur }}</p>
+        <div class="flex justify-end gap-2 border-t border-line pt-4">
+          <button type="button" class="btn" @click="nomDialog?.close()">Annuler</button>
+          <button type="submit" class="btn btn-primary" :disabled="!nomForm.nom.trim() || nomForm.envoi">{{ nomForm.mode === 'creer' ? 'Créer' : 'Enregistrer' }}</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog ref="suppressionDialog" class="sheet w-[min(26rem,calc(100vw-1.5rem))] p-0" role="alertdialog" aria-labelledby="suppression-titre" aria-describedby="suppression-texte">
+      <div class="space-y-4 p-5">
+        <h2 id="suppression-titre" class="text-[1.375rem] leading-7">Supprimer « {{ modeles.courant?.nom }} » ?</h2>
+        <p id="suppression-texte" class="text-sm text-ink-soft">
+          Cette semaine type et ses créneaux seront supprimés. Vos tâches restent dans la bibliothèque et les mois déjà créés ne changent pas.
+        </p>
+        <p v-if="suppression.erreur" class="message-erreur" role="alert">{{ suppression.erreur }}</p>
+        <div class="flex justify-end gap-2 border-t border-line pt-4">
+          <button type="button" class="btn" @click="suppressionDialog?.close()">Annuler</button>
+          <button type="button" class="btn btn-danger" :disabled="suppression.envoi" @click="supprimer">Supprimer la semaine type</button>
+        </div>
+      </div>
     </dialog>
 
     <PlacerDialog

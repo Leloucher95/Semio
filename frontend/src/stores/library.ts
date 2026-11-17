@@ -29,6 +29,11 @@ export const useLibrary = defineStore('library', () => {
   const remplacer = <T extends { id: string }>(liste: T[], item: T) =>
     liste.some((x) => x.id === item.id) ? liste.map((x) => (x.id === item.id ? item : x)) : [...liste, item]
 
+  /** Verse dans la bibliothèque une tâche créée ailleurs (création rapide depuis la semaine type). */
+  const integrer = (tache: Tache) => {
+    taches.value = remplacer(taches.value, tache)
+  }
+
   async function saveRubrique(data: { nom: string; couleur: string }, id?: string) {
     const rec = id
       ? await pb.collection('rubriques').update<Rubrique>(id, data)
@@ -73,6 +78,6 @@ export const useLibrary = defineStore('library', () => {
 
   return {
     rubriques, taches, charge, actives, archivees, tacheParId, rubriqueParId,
-    load, saveRubrique, removeRubrique, saveTache, removeTache, quickAdd,
+    load, integrer, saveRubrique, removeRubrique, saveTache, removeTache, quickAdd,
   }
 })
