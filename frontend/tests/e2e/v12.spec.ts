@@ -348,6 +348,11 @@ test('V1.2 — téléphone : toucher une heure libre ouvre un formulaire compact
     expect(Math.min(b.width, b.height)).toBeGreaterThanOrEqual(44)
   }
 
+  // « Ajouter » se trouve juste sous le champ, dans la moitié haute de l'écran : un clavier virtuel ne le recouvre pas.
+  const ajouter = (await dialog.getByRole('button', { name: 'Ajouter', exact: true }).boundingBox())!
+  expect(ajouter.y + ajouter.height).toBeLessThanOrEqual(page.viewportSize()!.height * 0.45)
+  expect(ajouter.y).toBeLessThan((await dialog.getByLabel('Début').boundingBox())!.y)
+
   await champ(page).fill('Lecture')
   await dialog.getByRole('button', { name: 'Ajouter', exact: true }).tap()
   await expect(colonne(page, 1).getByTestId('bloc')).toContainText('09:00–10:00')

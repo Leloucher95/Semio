@@ -228,8 +228,8 @@ function ouvrirBloc(id: string) {
             <p class="mt-1 text-sm text-ink-soft">Cliquez sur une heure pour ajouter votre première activité, ou créez un objectif sans horaire.</p>
           </div>
           <div class="flex flex-wrap gap-2">
-            <button type="button" class="btn btn-primary" @click="creation?.ouvrir({ jour_semaine: 1, debut_min: 480 })">Ajouter une activité</button>
-            <button type="button" class="btn" @click="objectif?.ouvrir()">Ajouter un objectif</button>
+            <button type="button" class="btn btn-primary" @click="creation?.ouvrir({ jour_semaine: 1, debut_min: 480 })">+ Ajouter une activité</button>
+            <button type="button" class="btn" @click="objectif?.ouvrir()">+ Ajouter un objectif</button>
           </div>
         </div>
         <p v-else class="flex min-h-[3.75rem] items-center rounded-md border border-dashed border-line px-3 text-sm text-ink-soft">
@@ -243,12 +243,12 @@ function ouvrirBloc(id: string) {
             <h2 class="text-lg">Tâches</h2>
             <button type="button" class="btn btn-primary min-h-9" @click="placerDialog?.ouvrir({})">Placer</button>
           </div>
-          <div class="flex flex-wrap gap-2 py-2">
-            <button type="button" class="btn min-h-11 flex-1 px-3" @click="creation?.ouvrir({ jour_semaine: 1, debut_min: 480 })">+ Ajouter une activité</button>
-            <button type="button" class="btn min-h-11 flex-1 px-3" @click="objectif?.ouvrir()">+ Ajouter un objectif</button>
+          <div v-if="!vierge" class="grid grid-cols-2 gap-2 py-2 lg:grid-cols-1">
+            <button type="button" class="btn px-2" @click="creation?.ouvrir({ jour_semaine: 1, debut_min: 480 })">+ Ajouter une activité</button>
+            <button type="button" class="btn px-2" @click="objectif?.ouvrir()">+ Ajouter un objectif</button>
           </div>
-          <p v-if="!library.actives.length" class="pb-2 text-xs text-ink-soft">
-            Aucune activité pour l’instant : cliquez sur une heure de la grille, ou utilisez les boutons ci-dessus.
+          <p v-if="!library.actives.length" class="py-2 text-xs text-ink-soft">
+            Aucune activité pour l’instant : cliquez sur une heure de la grille.
           </p>
           <p v-else class="pb-2 text-xs text-ink-soft">
             Cochez les tâches de cette semaine. Glissez la poignée ⠿ vers la grille, ou utilisez « Placer ».

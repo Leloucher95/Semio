@@ -141,7 +141,7 @@ async function ajouter() {
     ref="dialog" aria-labelledby="creation-titre"
     class="sheet max-h-[calc(100dvh-1.5rem)] w-[min(30rem,calc(100vw-1.5rem))] overflow-y-auto p-0 max-sm:mt-3 max-sm:mb-auto"
   >
-    <form class="space-y-4 p-5" @submit.prevent="ajouter">
+    <form class="flex flex-col gap-4 p-5" @submit.prevent="ajouter">
       <div>
         <p class="eyebrow">Nouvelle activité</p>
         <h2 id="creation-titre" class="mt-0.5 text-[1.375rem] leading-7 first-letter:uppercase" data-testid="creation-quand">
@@ -180,7 +180,7 @@ async function ajouter() {
         </p>
       </div>
 
-      <div class="grid grid-cols-3 gap-2">
+      <div class="grid grid-cols-3 gap-2 max-sm:order-1">
         <div>
           <label class="label" for="creation-jour">Jour</label>
           <select id="creation-jour" v-model.number="form.jour" class="field px-2 capitalize" :disabled="form.repetition !== 'jour'">
@@ -201,7 +201,7 @@ async function ajouter() {
         </div>
       </div>
 
-      <fieldset>
+      <fieldset class="max-sm:order-1">
         <legend class="label">Répéter</legend>
         <div class="grid grid-cols-2 gap-2">
           <label
@@ -224,14 +224,15 @@ async function ajouter() {
       </fieldset>
 
       <!-- Aperçu : exactement les créneaux qui seront créés, tous ou aucun. -->
-      <p v-if="!blocage" class="text-sm text-ink-soft tabular-nums" data-testid="creation-apercu">
+      <p v-if="!blocage" class="text-sm text-ink-soft tabular-nums max-sm:order-1" data-testid="creation-apercu">
         {{ jours.length > 1 ? `${jours.length} créneaux` : 'Un créneau' }} de {{ horaire }} :
         <span class="text-ink">{{ jours.map(nomJour).join(', ') }}</span>.
       </p>
       <p v-else class="message-erreur" role="alert">{{ blocage }}</p>
+      <!-- Le refus (conflit, erreur serveur) reste collé au champ : visible sans faire défiler. -->
       <p v-if="form.erreur" class="message-erreur" role="alert">{{ form.erreur }}</p>
 
-      <div class="flex justify-end gap-2 border-t border-line pt-4">
+      <div class="flex justify-end gap-2 border-line sm:border-t sm:pt-4">
         <button type="button" class="btn" @click="dialog?.close()">Annuler</button>
         <button type="submit" class="btn btn-primary min-w-28" :disabled="!pret">{{ form.envoi ? 'Ajout…' : 'Ajouter' }}</button>
       </div>
