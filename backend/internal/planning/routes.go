@@ -30,6 +30,7 @@ func bindRoutes(app core.App) {
 		g.Bind(apis.RequireAuth("users"))
 		g.POST("/apply-template", appliquerModele)
 		g.POST("/duplicate-month", dupliquerMois)
+		g.POST("/quick-add", ajoutRapide)
 		return e.Next()
 	})
 }
