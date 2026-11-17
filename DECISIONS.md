@@ -52,3 +52,7 @@
 - 2026-11-16 — Image finale Alpine plutôt que `scratch`/distroless : le healthcheck et la sauvegarde à la demande ont besoin d'un `wget` et d'un shell ; coût ≈ 8 Mo, aucun code Go ajouté.
 - 2026-11-16 — Aucun label Traefik ni réseau externe dans `compose.yaml` : Dokploy les ajoute au déploiement pour le domaine déclaré dans son interface.
 - 2026-11-16 — `APP_URL` et `PB_ENCRYPTION_KEY` obligatoires dans `compose.yaml` (échec explicite) ; R2 facultatif pour démarrer mais requis avant toute ouverture au public.
+- 2026-11-17 — V1.2 : création rapide par une route atomique `/api/semio/quick-add` plutôt que trois appels du front — une erreur ne laisse ni tâche orpheline ni semaine à moitié modifiée ; les validations restent celles des hooks existants.
+- 2026-11-17 — V1.2 : un nom identique à une tâche existante la réutilise (pas de doublon involontaire) ; un nom seulement proche crée une nouvelle tâche, les correspondances étant proposées.
+- 2026-11-17 — V1.2 : un conflit sur un seul jour d'une répétition bloque tout l'ajout, côté écran puis côté serveur — jamais de création partielle.
+- 2026-11-17 — V1.2 : un clic dans une zone libre de la grille désélectionne le bloc courant **et** ouvre la création ; la création rapide reste limitée à la semaine type.

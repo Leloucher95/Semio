@@ -77,6 +77,8 @@ Tests avec 2 utilisateurs + invité sur chaque opération, y compris tentative d
 - Drag Pointer Events : handles pour resize; `touch-action:none` sur les poignées uniquement; ghost et `elementFromPoint`, source Pinia unique, commit API après geste. Support clavier par bouton Placer.
 - Impression : pages séparées semaine et mois, A4 paysage; `@page`, `print-color-adjust:exact`, pas de navigation. Cas d'essai de référence 12 tâches/31 jours = 1 page lisible; si davantage, pages supplémentaires propres, jamais masquage/troncation silencieuse.
 
+- Création rapide (V1.2) : `POST /api/semio/quick-add` crée ou réutilise une tâche, l'ajoute au modèle et pose ses créneaux dans une seule transaction, propriétaire pris dans la session ; mêmes validations que les écritures unitaires. Le front n'envoie rien pendant la frappe (recherche dans le store).
+
 ## 7. Embedding et sauvegardes
 
 - Vite build → `backend/web/dist`; seul le contenu sous `backend/web` est embarqué, pas un chemin parent interdit par `embed.FS`. En dev PocketBase sert `/api`, Vite sert l'interface et proxy.
